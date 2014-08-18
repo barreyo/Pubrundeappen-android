@@ -1,0 +1,103 @@
+package se.chalmers.krogkollen.map;
+
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.util.DisplayMetrics;
+
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import se.chalmers.krogkollen.R;
+import se.chalmers.krogkollen.pub.IPub;
+import se.chalmers.krogkollen.utils.Constants;
+
+
+/*
+ * This file is part of Krogkollen.
+ *
+ * Krogkollen is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Krogkollen is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Krogkollen.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Builds settings for markers in Google Maps V2 for Android.
+ * 
+ * @author Johan Backman
+ */
+public class MarkerOptionsFactory {
+
+	/**
+	 * Creates marker options with the specified text and background from Android resources.
+	 * 
+	 * @param resources APP resources.
+	 * @param pub the pub that should be displayed on the marker.
+	 * @return a new google maps marker.
+	 */
+	public static MarkerOptions createMarkerOptions(final DisplayMetrics displayMetrics, final Resources resources, final IPub pub) {
+
+		// Make the bitmap mutable, since an object retrieved from resources is set to immutable by
+		// default.
+		Bitmap bitmap = getBackgroundPicture(pub.getQueueTime(), resources);
+		Bitmap bitmapResult = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+		bitmap.recycle();
+
+		// Create a canvas so the text can be drawn on the image.
+		Canvas canvas = new Canvas(bitmapResult);
+
+		// Add text to canvas.
+		Paint paint = new Paint();
+		paint.setColor(Color.rgb(44, 44, 44));
+		paint.setTextSize(resources.getDimensionPixelSize(R.dimen.marker_font_size_main));
+		paint.setTypeface(Typeface.SANS_SERIF);
+		String mainText = pub.getName();
+		if (mainText.length() > 10) {                           // if the text is too long cut it
+			mainText = mainText.substring(0, 9);
+			mainText += ".";
+		}
+		canvas.drawText(mainText, displayMetrics.xdpi * 0.06f,
+				displayMetrics.ydpi * 0.15f, paint);
+		paint.setColor(Color.rgb(141, 141, 141));
+		paint.setTextSize(resources.getDimensionPixelSize(R.dimen.marker_font_size_sub));
+		canvas.drawText((pub.getTodaysOpeningHours().toString()),
+				displayMetrics.xdpi * 0.06f, displayMetrics.ydpi * 0.238f, paint);
+
+		// Finalize the markerOptions.
+		MarkerOptions options = new MarkerOptions()
+				.position(new LatLng(pub.getLatitude(), pub.getLongitude()))
+				.icon(BitmapDescriptorFactory.fromBitmap(bitmapResult))
+				.anchor(0.3f, 0.94f)
+				.title(pub.getID());
+
+		return options;
+	}
+
+	// Find the right background to use and decode the bitmap.
+	private static Bitmap getBackgroundPicture(int queueTime, final Resources resources) {
+		switch (queueTime) {
+			case 1:
+				return BitmapFactory.decodeResource(resources, Constants.MAP_SHORT_QUEUE);
+			case 2:
+				return BitmapFactory.decodeResource(resources, Constants.MAP_MEDIUM_QUEUE);
+			case 3:
+				return BitmapFactory.decodeResource(resources, Constants.MAP_LONG_QUEUE);
+			default:
+				return BitmapFactory.decodeResource(resources, Constants.MAP_NO_INFO_QUEUE);
+		}
+	}
+}

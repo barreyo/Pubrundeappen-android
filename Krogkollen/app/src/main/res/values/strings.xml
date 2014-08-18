@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This file is part of Krogkollen.
+
+ Krogkollen is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Krogkollen is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Krogkollen.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<resources>
+
+    <string name="app_name">Krogkollen</string>
+    <string name="alert_dialog_title">Förbättra platsnoggrannheten</string>
+    <string name="alert_dialog_activate">Aktivera</string>
+    <string name="alert_dialog_cancel">Aktivera inte</string>
+    <string name="alert_dialog_base_message">Förbättra din position genom att aktivera följande:</string>
+    <string name="alert_dialog_net">\nWi-Fi</string>
+    <string name="alert_dialog_gps">\nGPS</string>
+    <string name="alert_dialog_dont_show_again">Visa inte igen</string>
+    <string name="dont_show_again_key">dont_show_again</string>
+    <string name="title_activity_map">Krogkarta</string>
+    <string name="refresh">Uppdatera</string>
+    <string name="open_list">Öppna lista</string>
+    <string name="search">Sök</string>
+    <string name="go_to_my_location">Min position</string>
+    <string name="pub_name"> </string>
+    <string name="description"> </string>
+    <string name="opening_hours"> </string>
+    <string name="age"> </string>
+    <string name="queue_time"> </string>
+    <string name="entrance_fee"> </string>
+    <string name="thumbs_up"> </string>
+    <string name="thumbs_down"> </string>
+    <string name="action_help">Hjälp</string>
+    <string name="help_main">Färgerna listade nedan hittar du lite överallt i applikationen och med lite olika former, men de
+        har alltid samma betydelse.
+    </string>
+    <string name="help_title">Hjälp</string>
+    <string name="help_green">Grön färg betyder att det inte är någon kö eller väldigt kort kö. Ca 0–15 minuter.</string>
+    <string name="help_yellow">Gul färg betyder att det är medellång kö. Ca 15–45 minuter.</string>
+    <string name="help_red">Röd färg betyder att det är nästan omöjligt att komma in inom resonabel tid. Ca 45+ minuter</string>
+    <string name="help_gray">Grå färg betyder att Krogkollen inte har fått någon aktuell information från krogen i fråga.</string>
+    <string name="title_activity_detailed">Info</string>
+    <string name="title_activity_help">Hjälp</string>
+    <string name="favorite_star_string">Lägg till favorit</string>
+    <string name="pref_storage_title">Lagring</string>
+    <string name="pref_remove_favorites_desc">Ta bort sparade favoriter.</string>
+    <string name="pref_remove_favorites_title">Rensa favoriter</string>
+    <string name="pref_remove_cache_desc">Ta bort all cachadelagrad data.</string>
+    <string name="pref_remove_cache_title">Rensa cache</string>
+    <string name="settings_title">Inställningar</string>
+    <string name="title_activity_list">Listvy</string>
+    <string name="map_updating">Uppdaterar krogar&#8230;</string>
+    <string name="map_user_name">user</string>
+    <string name="loading_pubs">Laddar krogar&#8230;</string>
+    <string name="distance_km">km</string>
+    
+    <!--  Error message strings -->
+    <string name="error_no_backend_access">Serverfel, kan ej ansluta till servern.\nKontakta Krogkollen.</string>
+    <string name="error_no_backend_item">Serverfel, hittar ej krogen i databasen.\nKontakta Krogkollen..</string>
+    <string name="error_backend_not_initialized">Serverfel, servern har ej initierats.\nKontakta Krogkollen.</string>
+    
+	<!-- Search strings -->
+    <string name="search_hint">Sök efter en krog</string>
+    <string name="title_activity_search">Sök</string>
+    <string name="error_no_connection">Ingen anslutning</string>
+	<string name="no_search_results">Din sökning gav inga träffar</string>
+    
+    <!--  Detailed view strings -->
+    <string name="dialog_updating_info">Uppdaterar info&#8230;</string>
+    <string name="information_text_year">år</string>
+    <string name="information_closed">Stängt</string>
+    
+    <!-- List view strings -->
+    <string name="list_tab_name_queue_time">Kötid</string>
+    <string name="list_tab_name_distance">Avstånd</string>
+    <string name="list_tab_name_favorites">Favoriter</string>
+
+</resources>
