@@ -3,12 +3,16 @@ package se.chalmers.krogkollen;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import se.chalmers.krogkollen.backend.BackendHandler;
@@ -52,6 +56,17 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
+
+        int API_LEVEL =  android.os.Build.VERSION.SDK_INT;
+
+        if (API_LEVEL >= 19)
+        {
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION );
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.loading_spinner);
+        progressBar.getIndeterminateDrawable().setColorFilter(Color.DKGRAY, PorterDuff.Mode.MULTIPLY);
 
 		if (isNetworkAvailable()) {
 			new InitResourcesTask().execute();
