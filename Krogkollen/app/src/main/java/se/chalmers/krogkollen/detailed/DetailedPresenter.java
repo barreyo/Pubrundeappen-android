@@ -60,74 +60,6 @@ public class DetailedPresenter implements IDetailedPresenter {
 
 	@Override
 	public void ratingChanged(int rating) throws NotFoundInBackendException, NoBackendAccessException, BackendNotInitializedException {
-
-		if (rating == 1) {
-			if (view.getSharedPreferences(pub.getID(), 0).getInt("thumb", 0) == 1) {
-				view.setThumbs(0);
-
-				BackendHandler.getInstance().removeRatingVote(pub, 1);
-				pub.setPositiveRating(pub.getPositiveRating() - 1);
-
-				saveThumbState(0);
-
-			} else if (view.getSharedPreferences(pub.getID(), 0).getInt("thumb", 0) == -1) {
-				view.setThumbs(1);
-
-				BackendHandler.getInstance().removeRatingVote(pub, -1);
-				pub.setNegativeRating(pub.getNegativeRating() - 1);
-
-				BackendHandler.getInstance().addRatingVote(pub, 1);
-				pub.setPositiveRating(pub.getPositiveRating() + 1);
-
-				saveThumbState(1);
-			} else {
-				view.setThumbs(1);
-
-				BackendHandler.getInstance().addRatingVote(pub, 1);
-				pub.setPositiveRating(pub.getPositiveRating() + 1);
-
-				saveThumbState(1);
-			}
-		}
-
-		else if (rating == -1) {
-			if (view.getSharedPreferences(pub.getID(), 0).getInt("thumb", 0) == -1) {
-				view.setThumbs(0);
-
-				BackendHandler.getInstance().removeRatingVote(pub, -1);
-				pub.setNegativeRating(pub.getNegativeRating() - 1);
-
-				saveThumbState(0);
-
-			} else if (view.getSharedPreferences(pub.getID(), 0).getInt("thumb", 0) == 1) {
-				view.setThumbs(-1);
-
-				BackendHandler.getInstance().removeRatingVote(pub, 1);
-				pub.setPositiveRating(pub.getPositiveRating() - 1);
-				BackendHandler.getInstance().addRatingVote(pub, -1);
-				pub.setNegativeRating(pub.getNegativeRating() + 1);
-
-				saveThumbState(-1);
-			} else {
-				view.setThumbs(-1);
-
-				BackendHandler.getInstance().addRatingVote(pub, -1);
-				pub.setNegativeRating(pub.getNegativeRating() + 1);
-
-				saveThumbState(-1);
-			}
-		} else {
-			view.setThumbs(rating);
-
-			BackendHandler.getInstance().addRatingVote(pub, rating);
-			if (rating > 0) {
-				pub.setPositiveRating(pub.getPositiveRating() + 1);
-			} else {
-				pub.setNegativeRating(pub.getNegativeRating() + 1);
-			}
-			saveThumbState(rating);
-		}
-		updateVotes();
 	}
 
 	/**
@@ -198,7 +130,7 @@ public class DetailedPresenter implements IDetailedPresenter {
 
 	@Override
 	public void onClick(View view) {
-		if (view.getId() == R.id.thumbsDownLayout) {
+		/*if (view.getId() == R.id.thumbsDownLayout) {
 			try {
 				ratingChanged(-1);
 			} catch (NoBackendAccessException e) {
@@ -225,7 +157,7 @@ public class DetailedPresenter implements IDetailedPresenter {
 					+ UserLocation.getInstance().getCurrentLatLng().longitude + "&daddr="
 					+ pub.getLatitude() + "," + pub.getLongitude()));
 			this.view.startActivity(i);
-		}
+		} */
 	}
 
 	// Sends the new information to the view for displaying.
@@ -247,8 +179,6 @@ public class DetailedPresenter implements IDetailedPresenter {
 						+ ":-");
 		view.addMarker(pub);
 		view.navigateToLocation(new LatLng(pub.getLatitude(), pub.getLongitude()), 14);
-		view.showStar(Preferences.getInstance().loadPreference(pub.getID()));
-		view.setThumbs(view.getSharedPreferences(pub.getID(), 0).getInt("thumb", 0));
 		view.removeMarker();
 		view.addMarker(pub);
 		updateVotes();
@@ -256,12 +186,12 @@ public class DetailedPresenter implements IDetailedPresenter {
 
 	@Override
 	public void updateStar() {
-		saveFavoriteState();
-		view.showStar(Preferences.getInstance().loadPreference(pub.getID()));
+
+
 	}
 
 	// Updates the votes in the view
 	private void updateVotes() {
-		view.showVotes(String.valueOf(pub.getPositiveRating()), String.valueOf(pub.getNegativeRating()));
+
 	}
 }

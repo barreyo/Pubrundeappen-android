@@ -16,123 +16,51 @@ This file is part of Krogkollen.
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hubben 2.1"
+        android:layout_marginTop="122dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginLeft="28dp"
+        android:textSize="36sp"
+        android:textColor="#ffffff"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Informationsteknik | 19:00-03:00"
+        android:layout_marginTop="162dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginLeft="28dp"
+        android:textSize="15sp"
+        android:textColor="#ffffff"/>
+
+
+
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="5dp"
-            android:paddingTop="15dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:paddingBottom="15dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="190dp"
+            android:layout_marginBottom="0dp"
+            android:paddingTop="40dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp"
             android:background="@drawable/bg_card">
 
-        <LinearLayout
-                android:orientation="horizontal"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:baselineAligned="false"
-                android:layout_weight="5">
-
-            <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-                <TextView
-
-                        android:layout_marginTop="0dp"
-                        android:id="@+id/pub_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/pub_name"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:textColor="#333333"/>
-            </LinearLayout>
-
-            <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:baselineAligned="false">
-                <LinearLayout
-                        android:layout_gravity="right"
-                        android:orientation="horizontal"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="right"
-                        android:id="@+id/thumbsUpLayout">
-                    <ImageView
-                            android:id="@+id/thumbsUpButton"
-                            android:background="@drawable/thumb_up"
-                            android:layout_height="25dp"
-                            android:layout_width="25dp"
-                            android:layout_marginRight="5dp"></ImageView>
-                    <TextView
-                            android:layout_marginRight="10dp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:id="@+id/thumbsUpTextView"
-                            android:text="@string/thumbs_up"
-                            android:textColor="#777777"/>
-                </LinearLayout>
-
-                <LinearLayout
-                        android:id="@+id/thumbsDownLayout"
-                        android:layout_gravity="right"
-                        android:orientation="horizontal"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="right">
-
-                    <ImageView
-                            android:id="@+id/thumbsDownButton"
-                            android:background="@drawable/thumb_down"
-                            android:layout_height="25dp"
-                            android:layout_width="25dp"
-                            android:layout_marginRight="5dp">
-                    </ImageView>
-                    <TextView
-                            android:layout_marginRight="5dp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:id="@+id/thumbsDownTextView"
-                            android:text="@string/thumbs_down"
-                            android:textColor="#777777"/>
-                </LinearLayout>
-            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus facilisis feugiat ante sed hendrerit. Aliquam semper id purus dapibus tincidunt. In tincidunt dignissim eros, sit amet bibendum arcu dictum eget. Nunc velit urna, ultricies sed accumsan eu, tincidunt ut odio. Curabitur commodo nec purus ut euismod. Vivamus hendrerit justo non nisi "
+                android:textSize="16sp"
+                android:textColor="#666666"
+                />
 
 
-
-        </LinearLayout>
-
-        <ScrollView
-                android:id="@+id/scrollView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:requiresFadingEdge="vertical"
-                android:overScrollMode="never">
-
-            <LinearLayout
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent">
-
-                <TextView
-                        android:layout_marginTop="5dp"
-                        android:id="@+id/description"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="@string/description"
-                        android:textColor="#777777"/>
-            </LinearLayout>
-        </ScrollView>
     </LinearLayout>
 </FrameLayout>

@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -72,6 +73,13 @@ public class DetailedActivity extends Activity implements IDetailedView {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_detailed);
 
+        int API_LEVEL =  android.os.Build.VERSION.SDK_INT;
+
+        if (API_LEVEL >= 19)
+        {
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+
 		presenter = new DetailedPresenter();
 		presenter.setView(this);
 
@@ -85,9 +93,9 @@ public class DetailedActivity extends Activity implements IDetailedView {
 			this.showErrorMessage(this.getString(R.string.error_backend_not_initialized));
 		}
 
-		addListeners();
+		//addListeners();
 
-		pubTextView = (TextView) findViewById(R.id.pub_name);
+		/*pubTextView = (TextView) findViewById(R.id.pub_name);
 		descriptionTextView = (TextView) findViewById(R.id.description);
 		openingHoursTextView = (TextView) findViewById(R.id.opening_hours);
 		ageRestrictionTextView = (TextView) findViewById(R.id.age);
@@ -96,9 +104,9 @@ public class DetailedActivity extends Activity implements IDetailedView {
 		votesUpTextView = (TextView) findViewById(R.id.thumbsUpTextView);
 		votesDownTextView = (TextView) findViewById(R.id.thumbsDownTextView);
 		thumbsUpImage = (ImageView) findViewById(R.id.thumbsUpButton);
-		thumbsDownImage = (ImageView) findViewById(R.id.thumbsDownButton);
+		thumbsDownImage = (ImageView) findViewById(R.id.thumbsDownButton);*/
 
-		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		/*map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
@@ -107,9 +115,10 @@ public class DetailedActivity extends Activity implements IDetailedView {
 		});
 
 		map.getUiSettings().setCompassEnabled(false);
-		map.getUiSettings().setZoomControlsEnabled(false);
+		map.getUiSettings().setZoomControlsEnabled(false); */
 
-		getActionBar().setDisplayUseLogoEnabled(false);
+		getActionBar().setDisplayUseLogoEnabled(true);
+        getActionBar().setDisplayShowTitleEnabled(false);
 		getActionBar().setIcon(R.drawable.transparent_spacer);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	}
@@ -117,11 +126,10 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.detailed, menu);
-		favoriteStar = menu.findItem(R.id.favorite_star);
 
+        /*
 		try {
 			presenter.updateInfo();
 		} catch (NoBackendAccessException e) {
@@ -130,7 +138,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 			this.showErrorMessage(this.getString(R.string.error_no_backend_item));
 		} catch (BackendNotInitializedException e) {
 			this.showErrorMessage(this.getString(R.string.error_backend_not_initialized));
-		}
+		} */
 
 		return true;
 	}
@@ -160,16 +168,16 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
 	@Override
 	public void updateText(String pubName, String description, String openingHours, String age, String price) {
-		pubTextView.setText(pubName);
+		/*pubTextView.setText(pubName);
 		descriptionTextView.setText(description);
 		openingHoursTextView.setText(openingHours);
 		ageRestrictionTextView.setText(age);
-		entranceFeeTextView.setText(price);
+		entranceFeeTextView.setText(price); */
 	}
 
 	@Override
 	public void updateQueueIndicator(int queueTime) {
-		switch (queueTime) {
+	/*	switch (queueTime) {
 			case 1:
 				queueIndicator.setBackgroundResource(R.drawable.detailed_queue_green);
 				break;
@@ -182,48 +190,20 @@ public class DetailedActivity extends Activity implements IDetailedView {
 			default:
 				queueIndicator.setBackgroundResource(R.drawable.detailed_queue_gray);
 				break;
-		}
+		}*/
 	}
 
-	// Adds listeners to all buttons
-	private void addListeners() {
+    @Override
+    public void showVotes(String upVotes, String downVotes) {
+
+    }
+
+    // Adds listeners to all buttons
+    /*private void addListeners() {
 		findViewById(R.id.thumbsUpLayout).setOnClickListener(presenter);
 		findViewById(R.id.thumbsDownLayout).setOnClickListener(presenter);
 		findViewById(R.id.navigate).setOnClickListener(presenter);
-	}
-
-	/**
-	 * Updates the thumb button pictures.
-	 * 
-	 * @param thumb Represents thumb up, thumb down or neither with 1, -1 or 0.
-	 */
-	public void setThumbs(int thumb) {
-		switch (thumb) {
-			case -1:
-				thumbsDownImage.setBackgroundResource(R.drawable.thumb_down_selected);
-				thumbsUpImage.setBackgroundResource(R.drawable.thumb_up);
-				break;
-			case 1:
-				thumbsUpImage.setBackgroundResource(R.drawable.thumb_up_selected);
-				thumbsDownImage.setBackgroundResource(R.drawable.thumb_down);
-				break;
-			default:
-				thumbsDownImage.setBackgroundResource(R.drawable.thumb_down);
-				thumbsUpImage.setBackgroundResource(R.drawable.thumb_up);
-				break;
-		}
-	}
-
-	/**
-	 * Updates the text showing number of votes.
-	 * 
-	 * @param upVotes Number of up votes.
-	 * @param downVotes Number of down votes.
-	 */
-	public void showVotes(String upVotes, String downVotes) {
-		votesUpTextView.setText(upVotes);
-		votesDownTextView.setText(downVotes);
-	}
+	}*/
 
 	@Override
 	public void addMarker(IPub pub) {
@@ -248,9 +228,6 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menuItem) {
 		switch (menuItem.getItemId()) {
-			case R.id.favorite_star:
-				presenter.updateStar();
-				break;
 			case R.id.refresh_info:
 				try {
 					presenter.updateInfo();
@@ -270,19 +247,6 @@ public class DetailedActivity extends Activity implements IDetailedView {
 				return true;
 		}
 		return true;
-	}
-
-	/**
-	 * Updates the star.
-	 * 
-	 * @param isStarFilled Represents if the star is filled or not.
-	 */
-	public void showStar(boolean isStarFilled) {
-		if (isStarFilled) {
-			favoriteStar.setIcon(R.drawable.star_not_filled);
-		} else {
-			favoriteStar.setIcon(R.drawable.star_filled);
-		}
 	}
 
 	/**
