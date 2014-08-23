@@ -1,17 +1,21 @@
 package se.chalmers.krogkollen.detailed;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,7 +72,11 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	private GoogleMap map;
 	private Marker marker;
 
-	@Override
+    private FrameLayout.LayoutParams original_params;
+    private double start_y;
+    private int view_height;
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 
 		// Sets display mode to portrait only.
@@ -76,6 +84,80 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_detailed);
+
+        final View view = findViewById(R.id.detailed_main_content);
+
+        original_params = (FrameLayout.LayoutParams) view.getLayoutParams();
+
+        start_y = view.getY();
+        view_height = view.getHeight();
+
+        final GestureDetector gestureDetector = new GestureDetector(this, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                System.out.println("onDOWN");
+                return true;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                System.out.println("onSCROLL");
+
+                System.out.println(distanceY);
+
+                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+
+                System.out.println("view.getheight: " + view.getHeight());
+
+                System.out.println("HEIGHT: " + original_params.height);
+                System.out.println("ORIGINAL MARGIN: " + original_params.topMargin);
+                System.out.println("PARAMS MARGIN: " + params.topMargin);
+
+                params.topMargin -= distanceY;
+
+                view.setLayoutParams(params);
+
+                if (distanceY > 0 ) {
+                    System.out.println("UP");
+                } else {
+                    System.out.println("DOWN");
+                }
+
+                return true;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+                System.out.println("onFLING");
+
+                return true;
+            }
+        });
+
+        FrameLayout frameView = (FrameLayout) findViewById(R.id.frame);
+
+        frameView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
 
         int API_LEVEL =  android.os.Build.VERSION.SDK_INT;
 
@@ -87,9 +169,6 @@ public class DetailedActivity extends Activity implements IDetailedView {
 		presenter = new DetailedPresenter();
 		presenter.setView(this);
 
-
-
-
 		try {
 			presenter.setPub(getIntent().getStringExtra(Constants.MARKER_PUB_ID));
 		} catch (NoBackendAccessException e) {
@@ -100,34 +179,10 @@ public class DetailedActivity extends Activity implements IDetailedView {
 			this.showErrorMessage(this.getString(R.string.error_backend_not_initialized));
 		}
 
-		//addListeners();
-
-		/*pubTextView = (TextView) findViewById(R.id.pub_name);
-		descriptionTextView = (TextView) findViewById(R.id.description);
-		openingHoursTextView = (TextView) findViewById(R.id.opening_hours);
-		ageRestrictionTextView = (TextView) findViewById(R.id.age);
-		entranceFeeTextView = (TextView) findViewById(R.id.entrance_fee);
-		queueIndicator = (ImageView) findViewById(R.id.queueIndicator);
-		votesUpTextView = (TextView) findViewById(R.id.thumbsUpTextView);
-		votesDownTextView = (TextView) findViewById(R.id.thumbsDownTextView);
-		thumbsUpImage = (ImageView) findViewById(R.id.thumbsUpButton);
-		thumbsDownImage = (ImageView) findViewById(R.id.thumbsDownButton);*/
-
-		/*map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-		map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-			@Override
-			public boolean onMarkerClick(Marker marker) {
-				return true; // Suppress default behaviour.
-			}
-		});
-
-		map.getUiSettings().setCompassEnabled(false);
-		map.getUiSettings().setZoomControlsEnabled(false); */
-
 		getActionBar().setDisplayUseLogoEnabled(true);
         getActionBar().setDisplayShowTitleEnabled(false);
-		getActionBar().setIcon(R.drawable.transparent_spacer);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setIcon(R.drawable.ic_action_back);
+		getActionBar().setDisplayHomeAsUpEnabled(false);
 	}
 
 	@Override
@@ -154,6 +209,10 @@ public class DetailedActivity extends Activity implements IDetailedView {
         animation.setDuration(500);
         animation.setStartOffset(600);
         fab.startAnimation(animation);
+
+        /*Animation animation1 = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom);
+        ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
+        imageView.startAnimation(animation1); */
 
         animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom);
         View view = findViewById(R.id.detailed_main_content);

@@ -13,30 +13,32 @@ This file is part of Krogkollen.
  along with Krogkollen.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/scrollView1"
+            android:id="@+id/frame"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:fillViewport="true"
             android:background="@drawable/bg_lel">
-    <ImageView
-        android:id="@+id/overlay_gradient"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:src="@drawable/black_gradient"/>
+
+            <ImageView
+                    android:id="@+id/overlay_gradient"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:src="@drawable/black_gradient"/>
 
 
-    <LinearLayout 
-                  android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:id="@+id/detailed_main_content">
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/detailed_main_content">
 
-        <include  layout="@layout/card1"
-                  android:layout_weight="6"
-                  android:layout_width="match_parent"
-                  android:layout_height="0dp"/>
+                    <include  layout="@layout/card1"
+                        android:id="@+id/sub_view"
+                        android:layout_weight="6"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"/>
 
-    </LinearLayout>
+            </LinearLayout>
 
 
     <se.chalmers.krogkollen.detailed.FloatingActionButton
