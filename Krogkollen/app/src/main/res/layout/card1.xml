@@ -21,7 +21,7 @@ This file is part of Krogkollen.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hubben 2.1"
-        android:layout_marginTop="122dp"
+        android:layout_marginTop="118dp"
         android:layout_marginStart="28dp"
         android:layout_marginLeft="28dp"
         android:textSize="36sp"
@@ -50,7 +50,7 @@ This file is part of Krogkollen.
             android:paddingTop="40dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:paddingBottom="16dp"
+            android:paddingBottom="20dp"
             android:background="@drawable/bg_card">
 
             <TextView
@@ -60,7 +60,20 @@ This file is part of Krogkollen.
                 android:textSize="16sp"
                 android:textColor="#666666"
                 />
-
+        
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"/>
+        
+            <TextView
+                android:id="@+id/last_updated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Senast uppdaterad 2014-03-04 19:03"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                android:textColor="#666666"/>
 
     </LinearLayout>
 </FrameLayout>

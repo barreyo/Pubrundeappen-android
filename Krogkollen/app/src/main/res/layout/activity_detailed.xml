@@ -16,18 +16,25 @@ This file is part of Krogkollen.
             android:id="@+id/scrollView1"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            android:background="@drawable/bg_lel">
+    <ImageView
+        android:id="@+id/overlay_gradient"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@drawable/black_gradient"/>
+
+
     <LinearLayout 
                   android:orientation="vertical"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:background="@drawable/bg_lel">
+                  android:id="@+id/detailed_main_content">
 
         <include  layout="@layout/card1"
                   android:layout_weight="6"
                   android:layout_width="match_parent"
                   android:layout_height="0dp"/>
-
 
     </LinearLayout>
 

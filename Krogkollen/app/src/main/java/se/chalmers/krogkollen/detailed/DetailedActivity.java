@@ -8,7 +8,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,12 +84,11 @@ public class DetailedActivity extends Activity implements IDetailedView {
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
-
-        fab.setColor(Color.parseColor("#75c552"));
-
 		presenter = new DetailedPresenter();
 		presenter.setView(this);
+
+
+
 
 		try {
 			presenter.setPub(getIntent().getStringExtra(Constants.MARKER_PUB_ID));
@@ -144,6 +146,18 @@ public class DetailedActivity extends Activity implements IDetailedView {
 		} catch (BackendNotInitializedException e) {
 			this.showErrorMessage(this.getString(R.string.error_backend_not_initialized));
 		} */
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
+        fab.setColor(Color.parseColor("#75c552"));
+
+        Animation animation = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        animation.setDuration(500);
+        animation.setStartOffset(600);
+        fab.startAnimation(animation);
+
+        animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom);
+        View view = findViewById(R.id.detailed_main_content);
+        view.startAnimation(animation);
 
 		return true;
 	}
