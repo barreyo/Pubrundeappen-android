@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -79,6 +80,10 @@ public class DetailedActivity extends Activity implements IDetailedView {
         {
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
+
+        fab.setColor(Color.parseColor("#75c552"));
 
 		presenter = new DetailedPresenter();
 		presenter.setView(this);
