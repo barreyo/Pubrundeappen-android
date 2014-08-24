@@ -50,9 +50,7 @@ public class ListActivity extends FragmentActivity implements IListView {
 		setContentView(R.layout.activity_list);
 
 		// Tab titles
-		tabs = new String[] { getString(R.string.list_tab_name_queue_time),
-				getString(R.string.list_tab_name_distance),
-				getString(R.string.list_tab_name_favorites) };
+		tabs = new String[] { getString(R.string.list_tab_name_queue_time), getString(R.string.list_tab_name_distance)};
 
 		// Instantiates
 		viewPager = (ViewPager) findViewById(R.id.pager);

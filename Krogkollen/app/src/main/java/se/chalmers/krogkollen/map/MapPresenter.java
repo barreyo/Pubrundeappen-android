@@ -78,8 +78,8 @@ public class MapPresenter implements IMapPresenter {
 		this.resources = this.mapView.getResources();
 		this.sharedPref = mapView.getPreferences();
 		this.dontShowDialogAgain = sharedPref.getBoolean(
-				resources.getString(R.string.dont_show_again_key),
-				resources.getBoolean(R.bool.dont_show_again_default));
+                resources.getString(R.string.dont_show_again_key),
+                resources.getBoolean(R.bool.dont_show_again_default));
 		this.userLocation = UserLocation.getInstance();
 		this.userLocation.addObserver(this);
 		this.userLocation.startTrackingUser();
@@ -188,7 +188,8 @@ public class MapPresenter implements IMapPresenter {
 		protected void onPreExecute()
 		{
 			mapView.showProgressDialog();
-		}
+            System.out.println("--- UPDATE START ---");
+        }
 
 		// The code to be executed in a background thread.
 		@Override
@@ -267,7 +268,8 @@ public class MapPresenter implements IMapPresenter {
 		@Override
 		protected void onPostExecute(Void result)
 		{
-			mapView.hideProgressDialog();
+            System.out.println("--- UPDATE FINISHED ---");
+            mapView.hideProgressDialog();
 		}
 	}
 }

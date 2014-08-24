@@ -81,10 +81,6 @@ public class SortedListFragment extends ListFragment {
 			case 1:
 				sort = new SortByDistance();
 				break;
-
-			case 2:
-				sort = new FilterFavorites();
-				break;
 		}
 		return model.getSortedArray(sort);
 	}
