@@ -106,143 +106,10 @@ public class DetailedActivity extends Activity implements IDetailedView {
             public boolean onSingleTapUp(MotionEvent e) {
 
                 if (!hidden) {
-                    Animation animation = AnimationUtils.loadAnimation(DetailedActivity.this, R.anim.slide_out_bottom);
-                    animation.setInterpolator(DetailedActivity.this, android.R.anim.accelerate_interpolator);
-                    animation.setDuration(600);
-                    view.startAnimation(animation);
-                    animation.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            view.setVisibility(View.INVISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-                    Animation animation1 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_out);
-                    animation1.setDuration(400);
-                    final ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
-
-                    animation1.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            imageView.setVisibility(View.INVISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-
-                    imageView.startAnimation(animation1);
-
-                    Animation animation2 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_out);
-                    animation2.setDuration(200);
-                    final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
-
-                    animation2.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            fab.setVisibility(View.INVISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-
-                    fab.startAnimation(animation2);
-
+                    DetailedActivity.this.slideDownanimation(view);
                     hidden = true;
                 } else {
-                    Animation animation = AnimationUtils.loadAnimation(DetailedActivity.this, R.anim.slide_in_bottom);
-                    animation.setInterpolator(DetailedActivity.this, android.R.anim.decelerate_interpolator);
-                    animation.setDuration(600);
-                    view.startAnimation(animation);
-
-                    animation.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                            view.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-
-                    Animation animation1 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_in);
-                    animation1.setDuration(200);
-                    animation1.setStartOffset(600);
-                    final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
-
-                    animation1.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            fab.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-
-                    fab.startAnimation(animation1);
-
-                    Animation animation2 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_in);
-                    animation2.setDuration(500);
-                    final ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
-
-                    animation2.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            imageView.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-
-                    imageView.startAnimation(animation2);
-
+                    DetailedActivity.this.slideUpAnimation(view);
                     hidden = false;
                 }
 
@@ -252,6 +119,16 @@ public class DetailedActivity extends Activity implements IDetailedView {
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 System.out.println("onSCROLL");
+
+                if (Math.abs(distanceY) < 5) {
+                    return true;
+                }
+
+                if (distanceY > 0) {
+                    slideUpAnimation(view);
+                } else {
+                    slideDownanimation(view);
+                }
 
                 return true;
             }
@@ -483,6 +360,145 @@ public class DetailedActivity extends Activity implements IDetailedView {
 		}
 		return true;
 	}
+
+    private void slideUpAnimation(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(DetailedActivity.this, R.anim.slide_in_bottom);
+        animation.setInterpolator(DetailedActivity.this, android.R.anim.decelerate_interpolator);
+        animation.setDuration(600);
+        view.startAnimation(animation);
+
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        Animation animation1 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_in);
+        animation1.setDuration(200);
+        animation1.setStartOffset(600);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
+
+        animation1.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                fab.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        fab.startAnimation(animation1);
+
+        Animation animation2 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_in);
+        animation2.setDuration(500);
+        final ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
+
+        animation2.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                imageView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        imageView.startAnimation(animation2);
+    }
+
+    private void slideDownanimation(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(DetailedActivity.this, R.anim.slide_out_bottom);
+        animation.setInterpolator(DetailedActivity.this, android.R.anim.accelerate_interpolator);
+        animation.setDuration(600);
+        view.startAnimation(animation);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        Animation animation1 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_out);
+        animation1.setDuration(400);
+        final ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
+
+        animation1.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                imageView.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        imageView.startAnimation(animation1);
+
+        Animation animation2 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_out);
+        animation2.setDuration(200);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
+
+        animation2.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                fab.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        fab.startAnimation(animation2);
+    }
 
 	/**
 	 * Shows a progress dialog indicating that the info is being updated
