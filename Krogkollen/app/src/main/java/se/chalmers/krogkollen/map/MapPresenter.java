@@ -50,7 +50,7 @@ import se.chalmers.krogkollen.utils.Constants;
  * @author Oskar Karrman
  * 
  */
-public class MapPresenter implements IMapPresenter, GoogleMap.OnMarkerClickListener {
+public class MapPresenter implements IMapPresenter {
 
 	public static final int		PUB_REMOVED			= -1;
 	public static final int		PUB_CHANGED			= 0;
@@ -179,23 +179,6 @@ public class MapPresenter implements IMapPresenter, GoogleMap.OnMarkerClickListe
 		editor.commit();
 	}
 
-	@Override
-	public boolean onMarkerClick(Marker marker) {
-
-		// Move camera to the clicked marker.
-		mapView.moveCameraToPosition(marker.getPosition(), MapWrapper.INSTANCE.getMap().getCameraPosition().zoom);
-
-		if (marker.getTitle().equalsIgnoreCase(resources.getString(R.string.map_user_name))) {
-			return true; // Suppress click on user's marker.
-		} else {
-			// Open detailed view.
-			Bundle bundle = new Bundle();
-			bundle.putString(Constants.MAP_PRESENTER_KEY, marker.getId());
-			mapView.navigate(DetailedActivity.class, bundle);
-		}
-		return true; // Suppress default behavior; move camera and open info window.
-	}
-
 	// Send the heavy work of recreating the markers to another thread.
 	// Only changed pubs/markers will be altered.
 	private class RefreshTask extends AsyncTask<Void, Void, Void>
@@ -267,7 +250,7 @@ public class MapPresenter implements IMapPresenter, GoogleMap.OnMarkerClickListe
 							}
 						}
 
-						MapWrapper.INSTANCE.refreshPubMarkers(changedPubsHash);
+						mapView.refreshPubMarkers(changedPubsHash);
 					} catch (NoBackendAccessException e) {
 						mapView.showErrorMessage(mapView.getResources().getString(R.string.error_no_backend_access));
 					} catch (NotFoundInBackendException e) {

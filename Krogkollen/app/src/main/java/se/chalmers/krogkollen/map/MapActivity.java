@@ -11,10 +11,12 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -35,10 +38,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.backend.NotFoundInBackendException;
+import se.chalmers.krogkollen.pub.IPub;
+import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
 
 /*
@@ -65,33 +73,46 @@ import se.chalmers.krogkollen.utils.Constants;
  */
 public class MapActivity extends Activity implements IMapView {
 	private MapPresenter	presenter;
-	private Marker userMarker;
+	private Marker          userMarker;
 	private ProgressDialog	progressDialog;
+    private GoogleMap       googleMap;
+    private List<Marker>    pubMarkers;
+    private DisplayMetrics  displayMetrics;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
 
-		// Get the map from backend.
-		try {
-			MapWrapper.INSTANCE.init(this);
-		} catch (NoBackendAccessException e) {
-			this.showErrorMessage(this.getString(R.string.error_no_backend_access));
-		} catch (NotFoundInBackendException e) {
-			this.showErrorMessage(this.getString(R.string.error_no_backend_item));
-		}
+        // Initiate map
+        pubMarkers = new ArrayList<Marker>();
+        googleMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+                .getMap();
+        googleMap.getUiSettings().setCompassEnabled(false);
+        googleMap.getUiSettings().setZoomControlsEnabled(false);
+        displayMetrics = getResources().getDisplayMetrics();
+        try {
+            this.addPubMarkers(PubUtilities.getInstance().getPubList());
+        } catch (NoBackendAccessException e) {
+            this.showErrorMessage(this.getString(R.string.error_no_backend_access));
+        } catch (NotFoundInBackendException e) {
+            this.showErrorMessage(this.getString(R.string.error_no_backend_item));
+        }
 
 		// Create a presenter for this view.
 		presenter = new MapPresenter();
 		presenter.setView(this);
 
-		MapWrapper.INSTANCE.getMap().setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+
+
+
+		googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
 
 				// Move camera to the clicked marker.
-				moveCameraToPosition(marker.getPosition(), MapWrapper.INSTANCE.getMap().getCameraPosition().zoom);
+				moveCameraToPosition(marker.getPosition(), googleMap.getCameraPosition().zoom);
 
 				if (marker.getTitle().equalsIgnoreCase(getString(R.string.map_user_name))) {
 					return true;        // Suppress user marker click
@@ -110,7 +131,50 @@ public class MapActivity extends Activity implements IMapView {
 		actionBar.setDisplayHomeAsUpEnabled(true);
 	}
 
-	@Override
+    // Add markers for all pubs on the server to the map.
+    private void addPubMarkers(List<IPub> pubs) throws NoBackendAccessException,
+            NotFoundInBackendException {
+        IPub[] pubArray = new IPub[pubs.size()];
+
+        for (int i = 0; i < pubs.size(); i++) {
+            pubArray[i] = pubs.get(i);
+        }
+        new CreateMarkerTask().execute(pubArray);
+    }
+
+
+
+    /**
+     * Removes all pub markers, loads and adds them again.
+     */
+    public synchronized void refreshPubMarkers(HashMap<IPub, Integer> changedPubsHash)
+            throws NoBackendAccessException, NotFoundInBackendException {
+
+        List<IPub> changedPubs = new ArrayList<IPub>();
+
+        for (Map.Entry<IPub, Integer> entry : changedPubsHash.entrySet()) {
+
+            IPub pub = entry.getKey();
+            Integer integer = entry.getValue();
+
+            // Find added and changed pubs
+            if (integer == MapPresenter.PUB_CHANGED || integer == MapPresenter.PUB_ADDED) {
+                changedPubs.add(pub);
+            }
+
+            // Just remove pub markers for pubs that currently got a marker on the map.
+            for (Marker marker : pubMarkers) {
+                if (pub.getID().equalsIgnoreCase(marker.getId())) {
+                    marker.remove();
+                    pubMarkers.remove(marker);
+                }
+            }
+        }
+        this.addPubMarkers(changedPubs);
+    }
+
+
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
@@ -122,13 +186,12 @@ public class MapActivity extends Activity implements IMapView {
 
 	@Override
 	public void moveCameraToPosition(LatLng pos, float zoom) {
-		MapWrapper.INSTANCE.getMap().animateCamera(
-				CameraUpdateFactory.newCameraPosition(new CameraPosition(pos, zoom, 0, 0)));
+		googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(pos, zoom, 0, 0)));
 	}
 
 	@Override
 	public void addUserMarker(LatLng latLng) {
-		userMarker = MapWrapper.INSTANCE.getMap().addMarker(new MarkerOptions()
+		userMarker = googleMap.addMarker(new MarkerOptions()
 				.position(latLng)
 				.icon(BitmapDescriptorFactory.fromResource(R.drawable.user_marker))
 				.title(getString(R.string.map_user_name)));
@@ -144,7 +207,7 @@ public class MapActivity extends Activity implements IMapView {
 	public void animateUserMarker(final LatLng toPosition) {
 		final Handler handler = new Handler();
 		final long start = SystemClock.uptimeMillis();
-		Projection proj = MapWrapper.INSTANCE.getMap().getProjection();
+		Projection proj = googleMap.getProjection();
 		Point startPoint = proj.toScreenLocation(userMarker.getPosition());
 		final LatLng startLatLng = proj.fromScreenLocation(startPoint);
 		final long duration = 500;
@@ -288,4 +351,40 @@ public class MapActivity extends Activity implements IMapView {
 	public void onSearch() {
 		this.onSearchRequested();
 	}
+
+
+    // Used to direct workload when creating markers to another thread.
+    private class CreateMarkerTask extends AsyncTask<IPub, Void, List<MarkerOptions>> {
+
+        @Override
+        protected void onPreExecute()
+        {
+            progressDialog = ProgressDialog.show(MapActivity.this, "",
+                    MapActivity.this.getResources().getString(R.string.loading_pubs), false, false);
+        }
+
+        @Override
+        protected List<MarkerOptions> doInBackground(IPub... pubs) {
+
+            List<MarkerOptions> listMarkerOptions = new ArrayList<MarkerOptions>();
+
+            // Create options for all the markers
+            for (int i = 0; i < pubs.length; i++) {
+                IPub pub = pubs[i];
+                listMarkerOptions.add(MarkerOptionsFactory.createMarkerOptions(displayMetrics, MapActivity.this.getResources(), pub));
+            }
+            return listMarkerOptions;
+        }
+
+        @Override
+        protected void onPostExecute(List<MarkerOptions> markerOptions) {
+
+            // When settings are finished add all the markers to the map
+            // This is a GUI process and needs to be run here on the GUI thread.
+            for (MarkerOptions markerOption : markerOptions) {
+                pubMarkers.add(googleMap.addMarker(markerOption));
+            }
+            progressDialog.hide();
+        }
+    }
 }

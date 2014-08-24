@@ -5,7 +5,12 @@ import android.content.res.Resources;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.HashMap;
+
 import se.chalmers.krogkollen.IView;
+import se.chalmers.krogkollen.backend.NoBackendAccessException;
+import se.chalmers.krogkollen.backend.NotFoundInBackendException;
+import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.search.ICanSearch;
 /*
  * This file is part of Krogkollen.
@@ -83,4 +88,7 @@ public interface IMapView extends IView, ICanSearch {
 	 * Hide the loading dialog if it exists.
 	 */
 	public void hideProgressDialog();
+
+    public void refreshPubMarkers(HashMap<IPub, Integer> changedPubsHash)
+            throws NoBackendAccessException, NotFoundInBackendException;
 }
