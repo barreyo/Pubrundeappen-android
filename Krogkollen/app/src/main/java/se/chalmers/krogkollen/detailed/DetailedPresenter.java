@@ -58,41 +58,6 @@ public class DetailedPresenter implements IDetailedPresenter {
 		pub = PubUtilities.getInstance().getPub(pubID);
 	}
 
-	@Override
-	public void ratingChanged(int rating) throws NotFoundInBackendException, NoBackendAccessException, BackendNotInitializedException {
-	}
-
-	/**
-	 * Saves the state of the favorite locally
-	 */
-	public void saveFavoriteState() {
-		Preferences.getInstance().savePreference(pub.getID(), !Preferences.getInstance().loadPreference(pub.getID()));
-	}
-
-	/**
-	 * Saves the state of the thumb because a user is only allowed to vote 1 time.
-	 * 
-	 * @param thumb
-	 */
-	private void saveThumbState(int thumb) {
-		SharedPreferences.Editor editor = view.getSharedPreferences(pub.getID(), 0).edit();
-		editor.putInt("thumb", thumb);
-		editor.commit();
-	}
-
-	/**
-	 * Converts the hour string, e.g. if 3 is entered, 03 is returned
-	 * 
-	 * @param hour
-	 * @return the converted string
-	 */
-	private String convertOpeningHours(int hour) {
-		if (hour / 10 == 0) {
-			return "0" + hour;
-		}
-		return "" + hour;
-	}
-
 	/**
 	 * Updates the info of a pub
 	 * 
@@ -103,7 +68,7 @@ public class DetailedPresenter implements IDetailedPresenter {
 		new UpdateTask().execute();
 	}
 
-	// Updates the info about the pub in another thread
+    // Updates the info about the pub in another thread
 	private class UpdateTask extends AsyncTask<Void, Void, Void> {
 		protected void onPreExecute() {
 			view.showProgressDialog();
@@ -128,70 +93,8 @@ public class DetailedPresenter implements IDetailedPresenter {
 		}
 	}
 
-	@Override
-	public void onClick(View view) {
-		/*if (view.getId() == R.id.thumbsDownLayout) {
-			try {
-				ratingChanged(-1);
-			} catch (NoBackendAccessException e) {
-				this.view.showErrorMessage(this.view.getString(R.string.error_no_backend_access));
-			} catch (NotFoundInBackendException e) {
-				this.view.showErrorMessage(this.view.getString(R.string.error_no_backend_item));
-			} catch (BackendNotInitializedException e) {
-				this.view.showErrorMessage(this.view.getString(R.string.error_backend_not_initialized));
-			}
-		}
-		else if (view.getId() == R.id.thumbsUpLayout) {
-			try {
-				ratingChanged(1);
-			} catch (NoBackendAccessException e) {
-				this.view.showErrorMessage(this.view.getString(R.string.error_no_backend_access));
-			} catch (NotFoundInBackendException e) {
-				this.view.showErrorMessage(this.view.getString(R.string.error_no_backend_item));
-			} catch (BackendNotInitializedException e) {
-				this.view.showErrorMessage(this.view.getString(R.string.error_backend_not_initialized));
-			}
-		} else if (view.getId() == R.id.navigate) {
-			Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?saddr="
-					+ UserLocation.getInstance().getCurrentLatLng().latitude + ","
-					+ UserLocation.getInstance().getCurrentLatLng().longitude + "&daddr="
-					+ pub.getLatitude() + "," + pub.getLongitude()));
-			this.view.startActivity(i);
-		} */
-	}
-
 	// Sends the new information to the view for displaying.
 	private void updateMain() {
-		String openingHours;
-
-		if (pub.getTodaysOpeningHours().isOpen()) {
-			openingHours = this.convertOpeningHours(pub.getTodaysOpeningHours().getOpeningHour())
-					+ " - " + this.convertOpeningHours(pub.getTodaysOpeningHours().getClosingHour());
-		} else {
-			openingHours = view.getString(R.string.information_closed);
-		}
-
 		view.updateQueueIndicator(pub.getQueueTime());
-		view.updateText(pub.getName(), pub.getDescription(),
-				openingHours,
-				"" + pub.getAgeRestriction() + " "
-						+ view.getString(R.string.information_text_year), "" + pub.getEntranceFee()
-						+ ":-");
-		view.addMarker(pub);
-		view.navigateToLocation(new LatLng(pub.getLatitude(), pub.getLongitude()), 14);
-		view.removeMarker();
-		view.addMarker(pub);
-		updateVotes();
-	}
-
-	@Override
-	public void updateStar() {
-
-
-	}
-
-	// Updates the votes in the view
-	private void updateVotes() {
-
 	}
 }

@@ -63,18 +63,11 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	private IDetailedPresenter	presenter;
 
 	/** A bunch of view elements */
-	private TextView			pubTextView, descriptionTextView, openingHoursTextView,
-								ageRestrictionTextView, entranceFeeTextView, votesUpTextView, votesDownTextView;
-	private ImageView			thumbsUpImage, thumbsDownImage, queueIndicator;
-	private MenuItem			favoriteStar;
-	private ProgressDialog		progressDialog;
+	private TextView			pubTextView, descriptionTextView, openingHoursTextView, lastUpdatedTextView;
 
-	private GoogleMap map;
-	private Marker marker;
+    private ProgressDialog		progressDialog;
 
-    private FrameLayout.LayoutParams original_params;
-    private double start_y;
-    private int view_height;
+    private boolean hidden = false;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -87,15 +80,11 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
         final View view = findViewById(R.id.detailed_main_content);
 
-        original_params = (FrameLayout.LayoutParams) view.getLayoutParams();
-
-        start_y = view.getY();
-        view_height = view.getHeight();
-
         final GestureDetector gestureDetector = new GestureDetector(this, new GestureDetector.OnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 System.out.println("onDOWN");
+
                 return true;
             }
 
@@ -106,32 +95,154 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                return false;
+
+                if (!hidden) {
+                    Animation animation = AnimationUtils.loadAnimation(DetailedActivity.this, R.anim.slide_out_bottom);
+                    animation.setInterpolator(DetailedActivity.this, android.R.anim.accelerate_interpolator);
+                    animation.setDuration(600);
+                    view.startAnimation(animation);
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            view.setVisibility(View.INVISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+                    Animation animation1 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_out);
+                    animation1.setDuration(400);
+                    final ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
+
+                    animation1.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            imageView.setVisibility(View.INVISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+
+                    imageView.startAnimation(animation1);
+
+                    Animation animation2 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_out);
+                    animation2.setDuration(200);
+                    final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
+
+                    animation2.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            fab.setVisibility(View.INVISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+
+                    fab.startAnimation(animation2);
+
+                    hidden = true;
+                } else {
+                    Animation animation = AnimationUtils.loadAnimation(DetailedActivity.this, R.anim.slide_in_bottom);
+                    animation.setInterpolator(DetailedActivity.this, android.R.anim.decelerate_interpolator);
+                    animation.setDuration(600);
+                    view.startAnimation(animation);
+
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                            view.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+
+                    Animation animation1 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_in);
+                    animation1.setDuration(200);
+                    animation1.setStartOffset(600);
+                    final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
+
+                    animation1.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            fab.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+
+                    fab.startAnimation(animation1);
+
+                    Animation animation2 = AnimationUtils.loadAnimation(DetailedActivity.this, android.R.anim.fade_in);
+                    animation2.setDuration(500);
+                    final ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
+
+                    animation2.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            imageView.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+
+                    imageView.startAnimation(animation2);
+
+                    hidden = false;
+                }
+
+                return true;
             }
 
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                 System.out.println("onSCROLL");
-
-                System.out.println(distanceY);
-
-                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
-
-                System.out.println("view.getheight: " + view.getHeight());
-
-                System.out.println("HEIGHT: " + original_params.height);
-                System.out.println("ORIGINAL MARGIN: " + original_params.topMargin);
-                System.out.println("PARAMS MARGIN: " + params.topMargin);
-
-                params.topMargin -= distanceY;
-
-                view.setLayoutParams(params);
-
-                if (distanceY > 0 ) {
-                    System.out.println("UP");
-                } else {
-                    System.out.println("DOWN");
-                }
 
                 return true;
             }
@@ -183,6 +294,22 @@ public class DetailedActivity extends Activity implements IDetailedView {
         getActionBar().setDisplayShowTitleEnabled(false);
 		getActionBar().setIcon(R.drawable.ic_action_back);
 		getActionBar().setDisplayHomeAsUpEnabled(false);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
+        fab.setColor(Color.parseColor("#75c552"));
+
+        Animation animation = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        animation.setDuration(500);
+        animation.setStartOffset(600);
+        fab.startAnimation(animation);
+
+        /*Animation animation1 = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom);
+        ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
+        imageView.startAnimation(animation1); */
+
+        animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom);
+        animation.setInterpolator(this, android.R.anim.decelerate_interpolator);
+        view.startAnimation(animation);
 	}
 
 	@Override
@@ -201,22 +328,6 @@ public class DetailedActivity extends Activity implements IDetailedView {
 		} catch (BackendNotInitializedException e) {
 			this.showErrorMessage(this.getString(R.string.error_backend_not_initialized));
 		} */
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
-        fab.setColor(Color.parseColor("#75c552"));
-
-        Animation animation = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
-        animation.setDuration(500);
-        animation.setStartOffset(600);
-        fab.startAnimation(animation);
-
-        /*Animation animation1 = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom);
-        ImageView imageView = (ImageView) findViewById(R.id.overlay_gradient);
-        imageView.startAnimation(animation1); */
-
-        animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom);
-        View view = findViewById(R.id.detailed_main_content);
-        view.startAnimation(animation);
 
 		return true;
 	}
@@ -244,63 +355,28 @@ public class DetailedActivity extends Activity implements IDetailedView {
 		toast.show();
 	}
 
-	@Override
-	public void updateText(String pubName, String description, String openingHours, String age, String price) {
-		/*pubTextView.setText(pubName);
-		descriptionTextView.setText(description);
-		openingHoursTextView.setText(openingHours);
-		ageRestrictionTextView.setText(age);
-		entranceFeeTextView.setText(price); */
-	}
-
-	@Override
-	public void updateQueueIndicator(int queueTime) {
-	/*	switch (queueTime) {
-			case 1:
-				queueIndicator.setBackgroundResource(R.drawable.detailed_queue_green);
-				break;
-			case 2:
-				queueIndicator.setBackgroundResource(R.drawable.detailed_queue_yellow);
-				break;
-			case 3:
-				queueIndicator.setBackgroundResource(R.drawable.detailed_queue_red);
-				break;
-			default:
-				queueIndicator.setBackgroundResource(R.drawable.detailed_queue_gray);
-				break;
-		}*/
-	}
-
     @Override
-    public void showVotes(String upVotes, String downVotes) {
+    public void updateText(String pubName, String description, String openingHours, String lastUpdated) {
 
     }
 
-    // Adds listeners to all buttons
-    /*private void addListeners() {
-		findViewById(R.id.thumbsUpLayout).setOnClickListener(presenter);
-		findViewById(R.id.thumbsDownLayout).setOnClickListener(presenter);
-		findViewById(R.id.navigate).setOnClickListener(presenter);
-	}*/
-
-	@Override
-	public void addMarker(IPub pub) {
-		if (marker == null) {
-			marker = map.addMarker(MarkerOptionsFactory.createMarkerOptions(getResources().getDisplayMetrics(), getResources(), pub));
+    @Override
+	public void updateQueueIndicator(int queueTime) {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
+		switch (queueTime) {
+			case 1:
+                fab.setColor(Color.parseColor("#85ca4c"));
+				break;
+			case 2:
+				fab.setColor(Color.parseColor("#f6f406"));
+				break;
+			case 3:
+				fab.setColor(Color.parseColor("#f61e06"));
+				break;
+			default:
+                fab.setColor(Color.parseColor("#a0a0a0"));
+				break;
 		}
-	}
-
-	@Override
-	public void removeMarker() {
-		if (marker != null) {
-			marker.remove();
-			marker = null;
-		}
-	}
-
-	@Override
-	public void navigateToLocation(LatLng latLng, int zoom) {
-		map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(latLng, zoom, 0, 45)));
 	}
 
 	@Override

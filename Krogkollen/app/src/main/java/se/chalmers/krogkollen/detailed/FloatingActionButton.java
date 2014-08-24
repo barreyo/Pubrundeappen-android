@@ -92,14 +92,6 @@ public class FloatingActionButton extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int color;
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            color = mColor;
-        } else {
-            color = darkenColor(mColor);
-        }
-        mButtonPaint.setColor(color);
-        invalidate();
         return super.onTouchEvent(event);
     }
 
@@ -123,12 +115,5 @@ public class FloatingActionButton extends View {
         if (null != listView) {
             listView.setOnScrollListener(new DirectionScrollListener(this));
         }
-    }
-
-    public static int darkenColor(int color) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(color, hsv);
-        hsv[2] *= 0.8f;
-        return Color.HSVToColor(hsv);
     }
 }
