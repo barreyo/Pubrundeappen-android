@@ -17,7 +17,7 @@ This file is part of Krogkollen.
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:fillViewport="true"
-            android:background="@android:color/holo_purple">
+            android:background="@drawable/bg_lel">
 
             <ImageView
                     android:id="@+id/overlay_gradient"
@@ -37,15 +37,16 @@ This file is part of Krogkollen.
                         android:layout_weight="6"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"/>
+
             </LinearLayout>
 
 
     <se.chalmers.krogkollen.detailed.FloatingActionButton
         android:id="@+id/fabbutton"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
         android:layout_gravity="end"
-        android:layout_marginTop="150dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginRight="18dp"/>
+        android:layout_marginTop="143dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="20dp"/>
 </FrameLayout>

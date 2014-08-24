@@ -243,7 +243,6 @@ public class MapPresenter implements IMapPresenter, GoogleMap.OnMarkerClickListe
 									if (oldPub.getQueueTime() != newPub.getQueueTime() ||
 											oldPub.getLatitude() != newPub.getLatitude() ||
 											oldPub.getLongitude() != newPub.getLongitude() ||
-											!oldPub.getTodaysOpeningHours().toString().equals(newPub.getTodaysOpeningHours().toString()) ||
 											!oldPub.getName().equals(newPub.getName())) {
 										changedPubsHash.put(newPub, PUB_CHANGED);
 									}

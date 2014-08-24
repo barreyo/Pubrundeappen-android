@@ -74,7 +74,7 @@ public class MarkerOptionsFactory {
 				displayMetrics.ydpi * 0.15f, paint);
 		paint.setColor(Color.rgb(141, 141, 141));
 		paint.setTextSize(resources.getDimensionPixelSize(R.dimen.marker_font_size_sub));
-		canvas.drawText((pub.getTodaysOpeningHours().toString()),
+		canvas.drawText(("SEKTION YO"),
 				displayMetrics.xdpi * 0.06f, displayMetrics.ydpi * 0.238f, paint);
 
 		// Finalize the markerOptions.

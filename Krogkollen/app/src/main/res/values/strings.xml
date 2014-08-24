@@ -85,5 +85,7 @@ This file is part of Krogkollen.
     <string name="list_tab_name_queue_time">Kötid</string>
     <string name="list_tab_name_distance">Avstånd</string>
     <string name="list_tab_name_favorites">Favoriter</string>
+    <string name="show_on_map">Visa på kartan</string>
+    <string name="navigate_here">Navigera hit</string>
 
 </resources>

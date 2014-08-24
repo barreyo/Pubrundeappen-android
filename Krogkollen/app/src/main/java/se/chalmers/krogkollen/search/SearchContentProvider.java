@@ -76,7 +76,7 @@ public class SearchContentProvider extends ContentProvider {
 					color = R.drawable.detailed_queue_gray;
 					break;
 			}
-			Object[] pubRow = { pub.getName(), pub.getTodaysOpeningHours().toString(), (pub.getID()), color, i };
+			Object[] pubRow = { pub.getName(), "SEKTION YO", (pub.getID()), color, i };
 			cursor.addRow(pubRow);
 		}
 		return cursor;
