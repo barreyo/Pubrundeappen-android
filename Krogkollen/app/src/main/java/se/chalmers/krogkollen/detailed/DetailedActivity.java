@@ -1,11 +1,11 @@
 package se.chalmers.krogkollen.detailed;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -20,20 +20,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
+import java.util.Date;
+import java.util.TimeZone;
 
 import se.chalmers.krogkollen.R;
+import se.chalmers.krogkollen.backend.BackendHandler;
 import se.chalmers.krogkollen.backend.BackendNotInitializedException;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.backend.NotFoundInBackendException;
 import se.chalmers.krogkollen.help.HelpActivity;
-import se.chalmers.krogkollen.map.MarkerOptionsFactory;
 import se.chalmers.krogkollen.pub.IPub;
+import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
 /*
  * This file is part of Krogkollen.
@@ -63,7 +60,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	private IDetailedPresenter	presenter;
 
 	/** A bunch of view elements */
-	private TextView			pubTextView, descriptionTextView, openingHoursTextView, lastUpdatedTextView;
+	private TextView			pubTextView, descriptionTextView, openingHoursBranchTextView,lastUpdatedTextView;
 
     private ProgressDialog		progressDialog;
 
@@ -77,6 +74,11 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_detailed);
+
+        pubTextView = (TextView) findViewById(R.id.pub_name_text);
+        descriptionTextView = (TextView) findViewById(R.id.description_text);
+        openingHoursBranchTextView = (TextView) findViewById(R.id.opening_hours_branch_text);
+        lastUpdatedTextView = (TextView) findViewById(R.id.last_updated);
 
         final View view = findViewById(R.id.detailed_main_content);
 
@@ -310,24 +312,74 @@ public class DetailedActivity extends Activity implements IDetailedView {
         animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom);
         animation.setInterpolator(this, android.R.anim.decelerate_interpolator);
         view.startAnimation(animation);
+
+
+        IPub pub = PubUtilities.getInstance().getPub(getIntent().getStringExtra(Constants.MARKER_PUB_ID));
+        this.pubTextView.setText(pub.getName());
+        this.descriptionTextView.setText(pub.getDescription());
+        this.lastUpdatedTextView.setText("Senast uppdaterad " + pub.getLastUpdated());
+
+        Date fixedOpening = convertTimeZone(pub.getOpeningTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
+        Date fixedClosing = convertTimeZone(pub.getClosingTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
+
+        String fixedOpeningString = "";
+        String fixedClosingString = "";
+
+        if (fixedOpening.getHours() < 10) {
+            fixedOpeningString +=  "0" + fixedOpening.getHours() + ":";
+        } else {
+            fixedOpeningString += fixedOpening.getHours() + ":";
+        }
+
+        if (fixedOpening.getMinutes() < 10) {
+            fixedOpeningString += "0" + fixedOpening.getMinutes();
+        } else {
+            fixedOpeningString += fixedOpening.getMinutes();
+        }
+
+        if (fixedClosing.getHours() < 10) {
+            fixedClosingString += "0" + fixedClosing.getHours() + ":";
+        } else {
+            fixedClosingString += fixedClosing.getHours() + ":";
+        }
+
+        if (fixedClosing.getMinutes() < 10) {
+            fixedClosingString += "0" + fixedClosing.getMinutes();
+        } else {
+            fixedClosingString += fixedClosing.getMinutes();
+        }
+
+        this.openingHoursBranchTextView.setText(fixedOpeningString + " - " + fixedClosingString);
+
+        updateQueueIndicator(pub.getQueueTime());
+        new ConcurrentQueueTimeUpdate().execute(pub);
 	}
 
-	@Override
+    private java.util.Date convertTimeZone(java.util.Date date, TimeZone fromTZ , TimeZone toTZ)
+    {
+        long fromTZDst = 0;
+        if(fromTZ.inDaylightTime(date))
+        {
+            fromTZDst = fromTZ.getDSTSavings();
+        }
+
+        long fromTZOffset = fromTZ.getRawOffset() + fromTZDst;
+
+        long toTZDst = 0;
+        if(toTZ.inDaylightTime(date))
+        {
+            toTZDst = toTZ.getDSTSavings();
+        }
+        long toTZOffset = toTZ.getRawOffset() + toTZDst;
+
+        return new java.util.Date(date.getTime() + (toTZOffset - fromTZOffset));
+    }
+
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.detailed, menu);
-
-        /*
-		try {
-			presenter.updateInfo();
-		} catch (NoBackendAccessException e) {
-			this.showErrorMessage(this.getString(R.string.error_no_backend_access));
-		} catch (NotFoundInBackendException e) {
-			this.showErrorMessage(this.getString(R.string.error_no_backend_item));
-		} catch (BackendNotInitializedException e) {
-			this.showErrorMessage(this.getString(R.string.error_backend_not_initialized));
-		} */
 
 		return true;
 	}
@@ -365,16 +417,16 @@ public class DetailedActivity extends Activity implements IDetailedView {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabbutton);
 		switch (queueTime) {
 			case 1:
-                fab.setColor(Color.parseColor("#85ca4c"));
+                fab.setColor(Color.parseColor("#a2eb62"));
 				break;
 			case 2:
-				fab.setColor(Color.parseColor("#f6f406"));
+				fab.setColor(Color.parseColor("#fffa67"));
 				break;
 			case 3:
-				fab.setColor(Color.parseColor("#f61e06"));
+				fab.setColor(Color.parseColor("#eb7862"));
 				break;
 			default:
-                fab.setColor(Color.parseColor("#a0a0a0"));
+                fab.setColor(Color.parseColor("#dfdfdf"));
 				break;
 		}
 	}
@@ -416,4 +468,26 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	public void hideProgressDialog() {
 		progressDialog.hide();
 	}
+
+    private class ConcurrentQueueTimeUpdate extends AsyncTask<IPub, IPub, Integer> {
+
+
+        protected Integer doInBackground(IPub... pubs) {
+
+            int queueTime = pubs[0].getQueueTime();
+
+            try {
+                queueTime = BackendHandler.getInstance().getQueueTime(pubs[0]);
+            } catch (Exception e) {
+                System.out.println("Failed to get accurate queue time. Using cache.");
+            }
+            return queueTime;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            DetailedActivity.this.updateQueueIndicator(result.intValue());
+            System.out.println(result.intValue());
+        }
+    }
 }

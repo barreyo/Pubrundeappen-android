@@ -28,7 +28,6 @@ import se.chalmers.krogkollen.backend.NoBackendAccessException;
  */
 
 /**
- * 
  * A singleton holding a list of all the pubs, and is used to load data from the server.
  * 
  * @author Albin Garpetun

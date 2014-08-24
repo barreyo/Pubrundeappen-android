@@ -1,5 +1,8 @@
 package se.chalmers.krogkollen.backend;
 
+import android.text.format.Time;
+
+import java.util.Date;
 import java.util.List;
 
 import se.chalmers.krogkollen.pub.IPub;
@@ -57,45 +60,6 @@ public interface IBackend {
 	 */
 	public IPub getPubFromID(String id) throws NoBackendAccessException, NotFoundInBackendException;
 
-	/**
-	 * Adds a rating vote to the backend
-	 * 
-	 * @param pub the pub for which the rating should be added to
-	 * @param rating the rating vote to be added
-	 * @throws NoBackendAccessException
-	 * @throws NotFoundInBackendException
-	 */
-	public void addRatingVote(IPub pub, int rating) throws NoBackendAccessException, NotFoundInBackendException;
-
-	/**
-	 * Removes a rating vote from the backend
-	 * 
-	 * @param pub the pub for which the rating should be removed from
-	 * @param rating the rating vote to be removed
-	 * @throws NoBackendAccessException
-	 * @throws NotFoundInBackendException
-	 */
-	public void removeRatingVote(IPub pub, int rating) throws NoBackendAccessException, NotFoundInBackendException;
-
-	/**
-	 * Returns the number of positive ratings for a requested pub
-	 * 
-	 * @param pub the pub
-	 * @return the number of positive ratings for the pub
-	 * @throws NotFoundInBackendException
-	 * @throws NoBackendAccessException
-	 */
-	public int getPositiveRating(IPub pub) throws NotFoundInBackendException, NoBackendAccessException;
-
-	/**
-	 * Returns the number of negative ratings for a requested pub
-	 * 
-	 * @param pub the pub
-	 * @return the number of positive ratings for the pub
-	 * @throws NotFoundInBackendException
-	 * @throws NoBackendAccessException
-	 */
-	public int getNegativeRating(IPub pub) throws NotFoundInBackendException, NoBackendAccessException;
 
 	/**
 	 * Returns the timestamp in seconds from The Epoch when the queue time was last updated
@@ -106,6 +70,9 @@ public interface IBackend {
 	 * @throws NoBackendAccessException
 	 */
 	public long getLatestUpdatedTimestamp(IPub pub) throws NotFoundInBackendException, NoBackendAccessException;
+
+
+    public Date getLastUpdated(IPub pub) throws NoBackendAccessException, NotFoundInBackendException;
 
 	/**
 	 * Updates the pub object with the current info about the queue time, queue timestamp, positive

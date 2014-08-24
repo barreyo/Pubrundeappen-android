@@ -1,6 +1,12 @@
 package se.chalmers.krogkollen.pub;
 
+import android.graphics.Bitmap;
+import android.text.format.Time;
+
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseFile;
+
+import java.util.Date;
 
 /*
  * This file is part of Krogkollen.
@@ -39,11 +45,6 @@ public interface IPub {
 	public String getDescription();
 
 	/**
-	 * @return the age restriction of the pub
-	 */
-	public int getAgeRestriction();
-
-	/**
 	 * @return the current queue time of the pub
 	 */
 	public int getQueueTime();
@@ -71,35 +72,6 @@ public interface IPub {
 	public LatLng getCoordinates();
 
 	/**
-	 * @return the entrance fee for the pub
-	 */
-	public int getEntranceFee();
-
-	/**
-	 * @return the positive rating of the pub
-	 */
-	public int getPositiveRating();
-
-	/**
-	 * sets the number of positive ratings
-	 * 
-	 * @param rating
-	 */
-	public void setPositiveRating(int rating);
-
-	/**
-	 * @return the negative rating of the pub
-	 */
-	public int getNegativeRating();
-
-	/**
-	 * sets the number of negative ratings
-	 * 
-	 * @param rating
-	 */
-	public void setNegativeRating(int rating);
-
-	/**
 	 * @return the unique ID for the pub
 	 */
 	public String getID();
@@ -107,7 +79,13 @@ public interface IPub {
 	/**
 	 * @return the OpeningHours of the pub
 	 */
-	public OpeningHours getTodaysOpeningHours();
+	public Date getOpeningTime();
+
+    public Date getClosingTime();
+
+    public ParseFile getBackground();
+
+    public Date getLastUpdated();
 
 	/**
 	 * Updates the timestamp for when the queue time was last updated

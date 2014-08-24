@@ -20,8 +20,9 @@ This file is part of Krogkollen.
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hubben 2.1"
-        android:layout_marginTop="118dp"
+        android:id="@+id/pub_name_text"
+        android:text="Brooklyn Local"
+        android:layout_marginTop="116dp"
         android:layout_marginStart="28dp"
         android:layout_marginLeft="28dp"
         android:textSize="36sp"
@@ -30,8 +31,9 @@ This file is part of Krogkollen.
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Informationsteknik | 19:00-03:00"
-        android:layout_marginTop="162dp"
+        android:id="@+id/opening_hours_branch_text"
+        android:text="19:00-03:00"
+        android:layout_marginTop="160dp"
         android:layout_marginStart="28dp"
         android:layout_marginLeft="28dp"
         android:textSize="15sp"
@@ -56,6 +58,7 @@ This file is part of Krogkollen.
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/description_text"
                 android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus facilisis feugiat ante sed hendrerit. Aliquam semper id purus dapibus tincidunt. In tincidunt dignissim eros, sit amet bibendum arcu dictum eget. Nunc velit urna, ultricies sed accumsan eu, tincidunt ut odio. Curabitur commodo nec purus ut euismod. Vivamus hendrerit justo non nisi "
                 android:textSize="16sp"
                 android:textColor="#666666"
