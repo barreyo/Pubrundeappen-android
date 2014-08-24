@@ -134,7 +134,7 @@ public enum MapWrapper {
 
 	/**
 	 * Sets the context of this wrapper
-	 * 
+	 *
 	 * @param context the context
 	 */
 	public void setContext(Context context) {
