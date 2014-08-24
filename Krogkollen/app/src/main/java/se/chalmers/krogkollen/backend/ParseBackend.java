@@ -1,10 +1,14 @@
 package se.chalmers.krogkollen.backend;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.format.Time;
 
+import com.parse.GetDataCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
@@ -142,7 +146,7 @@ public class ParseBackend implements IBackend {
         } catch (ParseException e) {
             throw new NotFoundInBackendException(e.getMessage());
         }
-        return object.getDate("updatedAt");
+        return object.getUpdatedAt();
     }
 
     /**
@@ -157,16 +161,28 @@ public class ParseBackend implements IBackend {
 		int queueTime = object.getInt("queueTime");
         Date opening = object.getDate("opens");
         Date closing = object.getDate("closes");
-        Date lastUpdated = object.getDate("updatedAt");
+        Date lastUpdated = object.getUpdatedAt();
 
 		if (!queueTimeIsRecentlyUpdated(queueTimeLastUpdatedTimestamp)) {
 			queueTime = 0;
 		}
 
+        ParseFile imageFile = (ParseFile) object.get("poster");
+        Bitmap bitmap = null;
+        byte[] data = new byte[0];
+        try {
+            data = imageFile.getData();
+        } catch (Exception e) {
+            System.out.println("ERROR DOWNLOADING IMAGE FILE");
+        }
+        if (data != null){
+            bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+        }
+
 		return new Pub(object.getString("name"), object.getString("description"),
 				object.getDouble("latitude"), object.getDouble("longitude"),opening, closing,
                 queueTime, queueTimeLastUpdatedTimestamp, lastUpdated,
-                object.getParseFile("poster"), object.getObjectId());
+                bitmap, object.getObjectId());
 	}
 
 	@Override

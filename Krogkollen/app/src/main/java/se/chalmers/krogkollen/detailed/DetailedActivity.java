@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.GestureDetector;
@@ -62,6 +66,8 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	/** A bunch of view elements */
 	private TextView			pubTextView, descriptionTextView, openingHoursBranchTextView,lastUpdatedTextView;
 
+    private FrameLayout         main;
+
     private ProgressDialog		progressDialog;
 
     private boolean hidden = false;
@@ -79,6 +85,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
         descriptionTextView = (TextView) findViewById(R.id.description_text);
         openingHoursBranchTextView = (TextView) findViewById(R.id.opening_hours_branch_text);
         lastUpdatedTextView = (TextView) findViewById(R.id.last_updated);
+        main = (FrameLayout) findViewById(R.id.frame);
 
         final View view = findViewById(R.id.detailed_main_content);
 
@@ -317,7 +324,24 @@ public class DetailedActivity extends Activity implements IDetailedView {
         IPub pub = PubUtilities.getInstance().getPub(getIntent().getStringExtra(Constants.MARKER_PUB_ID));
         this.pubTextView.setText(pub.getName());
         this.descriptionTextView.setText(pub.getDescription());
-        this.lastUpdatedTextView.setText("Senast uppdaterad " + pub.getLastUpdated());
+
+        Date fixedUpdated = convertTimeZone(pub.getLastUpdated(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
+
+        String fixedUpdatedString = "";
+
+        if (fixedUpdated.getHours() < 10) {
+            fixedUpdatedString += "0" + fixedUpdated.getHours() + ":";
+        } else {
+            fixedUpdatedString += fixedUpdated.getHours() + ":";
+        }
+
+        if (fixedUpdated.getMinutes() < 10) {
+            fixedUpdatedString += "0" + fixedUpdated.getMinutes();
+        } else {
+            fixedUpdatedString += fixedUpdated.getMinutes();
+        }
+
+        this.lastUpdatedTextView.setText("Senast uppdaterad " + fixedUpdatedString);
 
         Date fixedOpening = convertTimeZone(pub.getOpeningTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
         Date fixedClosing = convertTimeZone(pub.getClosingTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
@@ -350,6 +374,11 @@ public class DetailedActivity extends Activity implements IDetailedView {
         }
 
         this.openingHoursBranchTextView.setText(fixedOpeningString + " - " + fixedClosingString);
+
+        if (pub.getBackground() != null) {
+            Drawable d = new BitmapDrawable(getResources(), pub.getBackground());
+            main.setBackgroundDrawable(d);
+        }
 
         updateQueueIndicator(pub.getQueueTime());
         new ConcurrentQueueTimeUpdate().execute(pub);
@@ -470,7 +499,6 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	}
 
     private class ConcurrentQueueTimeUpdate extends AsyncTask<IPub, IPub, Integer> {
-
 
         protected Integer doInBackground(IPub... pubs) {
 

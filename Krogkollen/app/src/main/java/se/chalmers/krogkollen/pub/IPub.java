@@ -83,7 +83,7 @@ public interface IPub {
 
     public Date getClosingTime();
 
-    public ParseFile getBackground();
+    public Bitmap getBackground();
 
     public Date getLastUpdated();
 
