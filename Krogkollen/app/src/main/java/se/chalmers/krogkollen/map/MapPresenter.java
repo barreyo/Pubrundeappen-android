@@ -122,12 +122,13 @@ public class MapPresenter implements IMapPresenter {
     @Override
     public void onPause() {
         this.userLocation.onPause();
-        System.out.println("MAP PAUSE");
     }
 
     @Override
     public void onResume() {
-        new RefreshTask().execute();
+        if (!MapActivity.firstLoad) {
+            new RefreshTask().execute();
+        }
         this.userLocation.onResume();
     }
 

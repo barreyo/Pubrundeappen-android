@@ -78,6 +78,7 @@ public class MapActivity extends Activity implements IMapView {
     private GoogleMap       googleMap;
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
+    public static boolean   firstLoad = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,7 @@ public class MapActivity extends Activity implements IMapView {
         googleMap.getUiSettings().setCompassEnabled(false);
         googleMap.getUiSettings().setZoomControlsEnabled(false);
         displayMetrics = getResources().getDisplayMetrics();
+
         try {
             this.addPubMarkers(PubUtilities.getInstance().getPubList());
         } catch (NoBackendAccessException e) {

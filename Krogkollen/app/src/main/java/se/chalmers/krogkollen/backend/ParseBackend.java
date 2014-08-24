@@ -93,9 +93,12 @@ public class ParseBackend implements IBackend {
 	@Override
 	public int getQueueTime(IPub pub) throws NoBackendAccessException, NotFoundInBackendException {
 		ParseObject object = new ParseObject("Pub");
-
+        long queueTimeLastUpdatedTimestamp;
+        int queueTime;
 		try {
 			object = ParseQuery.getQuery("Pub").get(pub.getID());
+            queueTimeLastUpdatedTimestamp = object.getLong("queueTimeLastUpdated");
+            queueTime = object.getInt("queueTime");
 		} catch (ParseException e) {
 			if (e.getCode() == ParseException.INVALID_KEY_NAME
 					|| e.getCode() == ParseException.OBJECT_NOT_FOUND) {
@@ -104,7 +107,7 @@ public class ParseBackend implements IBackend {
 				throw new NoBackendAccessException(e.getMessage());
 			}
 		}
-		return object.getInt("queueTime");
+		return !queueTimeIsRecentlyUpdated(queueTimeLastUpdatedTimestamp) ? 0 : queueTime;
 	}
 
 	@Override
