@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.list.SortedListFragment;
@@ -30,10 +31,10 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 
 	Context context;
 	int layoutResourceId;
-	IPub data[] = null;
+	List<IPub> data;
 	View row;
 	PubHolder holder;
-	SortedListFragment fragment;
+	//SortedListFragment fragment;
 
 	/**
 	 * A constructor that creates an PubListAdapter.
@@ -41,12 +42,12 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 	 * @param layoutResourceId
 	 * @param data
 	 */
-	public PubListAdapter(Context context, int layoutResourceId, IPub[] data, SortedListFragment fragment) {
+	public PubListAdapter(Context context, int layoutResourceId, List<IPub> data) {
 		super(context, layoutResourceId, data);
 		this.layoutResourceId = layoutResourceId;
 		this.context = context;
 		this.data = data;
-		this.fragment = fragment;
+		//this.fragment = fragment;
 
 	}
 
@@ -62,21 +63,22 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 			holder = new PubHolder();
 			holder.imgIcon = (ImageView)row.findViewById(R.id.listview_image);
 			holder.txtTitle = (TextView)row.findViewById(R.id.listview_title);
-			holder.distanceText = (TextView)row.findViewById(R.id.listview_distance);
-			holder.favoriteStar = (ImageButton)row.findViewById(R.id.favorite_star_list);
+			holder.subText = (TextView)row.findViewById(R.id.listview_subtext);
 
 			row.setTag(holder);
-		}
-
-		else{
+		} else {
 			holder = (PubHolder)row.getTag();
 		}
 
-		updateStar(Preferences.getInstance().loadPreference(this.getItem(position).getID()), holder);
+		IPub pub = data.get(position);
+        holder.txtTitle.setText(pub.getName());
 
-		IPub pub = data[position];
+        if (pub.getBranch() != null) {
+            holder.subText.setText(pub.getBranch());
+        }
+        /*
 		DecimalFormat numberFormat = new DecimalFormat("#0.00");
-		holder.txtTitle.setText(pub.getName());
+
 		double distance = Distance.calcDistBetweenTwoLatLng(new LatLng(pub.getLatitude(), pub.getLongitude()), UserLocation.getInstance().getCurrentLatLng());
 		if(distance < 1){
 			DecimalFormat numberFormatMeters = new DecimalFormat("#0");
@@ -84,21 +86,7 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 		}
 		else{
 			holder.distanceText.setText(""+(numberFormat.format(Distance.calcDistBetweenTwoLatLng(new LatLng(pub.getLatitude(),pub.getLongitude()), UserLocation.getInstance().getCurrentLatLng())))+" km");
-		}
-		holder.favoriteStar.setTag(position);
-
-
-		holder.favoriteStar.setOnClickListener(new View.OnClickListener() {
-			PubHolder tmp = holder;
-			@Override
-			public void onClick(View v) {
-				int pos = (Integer)v.getTag();
-				saveFavoriteState(pos);
-				updateStar(Preferences.getInstance().loadPreference(data[pos].getID()), tmp);
-				fragment.update();
-
-			}
-		});
+		}*/
 
 		switch(pub.getQueueTime()){
 			case 1:
@@ -119,35 +107,12 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 	}
 
 	/**
-	 * Saves the state of the favorite locally
-	 */
-	public void saveFavoriteState(int pos){
-		Preferences.getInstance().savePreference(data[pos].getID(), !Preferences.getInstance().loadPreference(data[pos].getID()));
-	}
-
-	/**
-	 * Updates the star.
-	 * 
-	 * @param isStarFilled Represents if the star is filled or not.
-	 * @param holder the PubHolder which holds the pub
-	 */
-	public void updateStar(boolean isStarFilled, PubHolder holder){
-		if(isStarFilled){
-			holder.favoriteStar.setBackgroundResource(R.drawable.star_not_filled);
-		}
-		else{
-			holder.favoriteStar.setBackgroundResource(R.drawable.star_filled);
-		}
-	}
-
-	/**
 	 * Static holder for pubs
 	 */
 	static class PubHolder
 	{
 		ImageView imgIcon;
 		TextView txtTitle;
-		TextView distanceText;
-		ImageButton favoriteStar;
+		TextView subText;
 	}
 }

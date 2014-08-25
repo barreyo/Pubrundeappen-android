@@ -13,6 +13,7 @@
         android:cacheColorHint="@android:color/transparent"
         android:divider="#CCCCCC"
         android:dividerHeight="1dp"
-        android:paddingLeft="2dp" >
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp">
     </ListView>
 </LinearLayout>

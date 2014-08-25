@@ -51,9 +51,6 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
 			case 1:
 				bundle.putInt(Constants.SORT_MODE, 1);
 				break;
-			case 2:
-				bundle.putInt(Constants.SORT_MODE, 2);
-				break;
 		}
 
 		fragment.setArguments(bundle);

@@ -44,13 +44,14 @@ public class Pub implements IPub {
     private Date            openTime, closeTime, lastUpdated;
 	private final String	ID;
 	private long			queueTimeLastUpdatedTimestamp;
-    private Bitmap       backgroundImage;
+    private String          branch;
+    private Bitmap          backgroundImage;
 
 	/**
 	 * Create a new Pub object with default values
 	 */
 	public Pub() {
-		this("Name", "Description", 51, 11, new Date(), new Date(), 3, 1, new Date(), null,"ID");
+		this("Name", "Description", 51, 11, new Date(), new Date(), 3, 1, new Date(), null, "Informationsteknik", "ID");
 	}
 
 	/**
@@ -73,6 +74,7 @@ public class Pub implements IPub {
 		long queueTimeLastUpdatedTimestamp,
         Date lastUpdated,
         Bitmap backgroundImage,
+        String branch,
 		String ID)
 	{
 		this.name = name;
@@ -85,6 +87,7 @@ public class Pub implements IPub {
 		this.queueTimeLastUpdatedTimestamp = queueTimeLastUpdatedTimestamp;
         this.backgroundImage = backgroundImage;
         this.lastUpdated = lastUpdated;
+        this.branch = branch;
 		this.ID = ID;
 	}
 
@@ -141,6 +144,11 @@ public class Pub implements IPub {
     @Override
     public Date getLastUpdated() {
         return this.lastUpdated;
+    }
+
+    @Override
+    public String getBranch() {
+        return branch;
     }
 
     @Override

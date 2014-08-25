@@ -60,9 +60,9 @@ This file is part of Krogkollen.
     <string name="pref_remove_cache_title">Rensa cache</string>
     <string name="settings_title">Inställningar</string>
     <string name="title_activity_list">Listvy</string>
-    <string name="map_updating">Uppdaterar krogar&#8230;</string>
+    <string name="map_updating">Uppdaterar pubar&#8230;</string>
     <string name="map_user_name">user</string>
-    <string name="loading_pubs">Laddar krogar&#8230;</string>
+    <string name="loading_pubs">Laddar pubar&#8230;</string>
     <string name="distance_km">km</string>
     
     <!--  Error message strings -->
@@ -71,7 +71,7 @@ This file is part of Krogkollen.
     <string name="error_backend_not_initialized">Serverfel, servern har ej initierats.\nKontakta Krogkollen.</string>
     
 	<!-- Search strings -->
-    <string name="search_hint">Sök efter en krog</string>
+    <string name="search_hint">Sök efter en pub</string>
     <string name="title_activity_search">Sök</string>
     <string name="error_no_connection">Ingen anslutning</string>
 	<string name="no_search_results">Din sökning gav inga träffar</string>

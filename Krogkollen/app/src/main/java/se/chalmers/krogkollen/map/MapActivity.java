@@ -74,10 +74,11 @@ import se.chalmers.krogkollen.utils.Constants;
 public class MapActivity extends Activity implements IMapView {
 	private MapPresenter	presenter;
 	private Marker          userMarker;
-	private ProgressDialog	progressDialog;
+	private ProgressDialog	progressDialog, progressDialog2;
     private GoogleMap       googleMap;
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
+    public static boolean   firstLoad = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,7 @@ public class MapActivity extends Activity implements IMapView {
         googleMap.getUiSettings().setCompassEnabled(false);
         googleMap.getUiSettings().setZoomControlsEnabled(false);
         displayMetrics = getResources().getDisplayMetrics();
+
         try {
             this.addPubMarkers(PubUtilities.getInstance().getPubList());
         } catch (NoBackendAccessException e) {
@@ -102,10 +104,6 @@ public class MapActivity extends Activity implements IMapView {
 		// Create a presenter for this view.
 		presenter = new MapPresenter();
 		presenter.setView(this);
-
-
-
-
 
 		googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 			@Override
@@ -240,12 +238,14 @@ public class MapActivity extends Activity implements IMapView {
 	public void showProgressDialog() {
 		progressDialog = ProgressDialog.show(MapActivity.this, "",
 				getString(R.string.map_updating), false, false);
-	}
+        System.out.println("SHOW DIALOG");
+    }
 
 	@Override
 	public void hideProgressDialog() {
 		progressDialog.hide();
-	}
+        System.out.println("HIDE DIALOG");
+    }
 
 	@Override
 	public void onPause() {
@@ -359,7 +359,7 @@ public class MapActivity extends Activity implements IMapView {
         @Override
         protected void onPreExecute()
         {
-            progressDialog = ProgressDialog.show(MapActivity.this, "",
+            progressDialog2 = ProgressDialog.show(MapActivity.this, "",
                     MapActivity.this.getResources().getString(R.string.loading_pubs), false, false);
         }
 
@@ -384,7 +384,7 @@ public class MapActivity extends Activity implements IMapView {
             for (MarkerOptions markerOption : markerOptions) {
                 pubMarkers.add(googleMap.addMarker(markerOption));
             }
-            progressDialog.hide();
+            progressDialog2.hide();
         }
     }
 }

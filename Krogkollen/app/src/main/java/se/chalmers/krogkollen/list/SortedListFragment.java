@@ -53,11 +53,11 @@ public class SortedListFragment extends ListFragment {
 		data = setSortMode(getArguments().getInt(Constants.SORT_MODE));
 		View rootView = inflater.inflate(R.layout.fragment_listview, container, false);
 
-		adapter = new PubListAdapter(getActivity(), R.layout.listview_item, data, this);
+		//adapter = new PubListAdapter(getActivity(), R.layout.listview_item, data, this);
 
-		System.out.println(getActivity() instanceof ListActivity);
+	/*	System.out.println(getActivity() instanceof ListActivity);
 
-		view = (ListActivity) getActivity();
+		view = (ListActivity) getActivity();*/
 
 		setListAdapter(adapter);
 
@@ -73,17 +73,12 @@ public class SortedListFragment extends ListFragment {
 	 */
 	public IPub[] setSortMode(int sortMode) {
 		switch (sortMode) {
-
 			case 0:
 				sort = new SortByQueueTime();
 				break;
 
 			case 1:
 				sort = new SortByDistance();
-				break;
-
-			case 2:
-				sort = new FilterFavorites();
 				break;
 		}
 		return model.getSortedArray(sort);

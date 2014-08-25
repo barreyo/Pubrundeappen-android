@@ -27,14 +27,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
-
-import java.text.DecimalFormat;
-
 import se.chalmers.krogkollen.R;
-import se.chalmers.krogkollen.map.UserLocation;
 import se.chalmers.krogkollen.pub.IPub;
-import se.chalmers.krogkollen.utils.Distance;
 
 /**
  * An adapter handling the different items in a search list
@@ -81,10 +75,8 @@ public class SearchViewAdapter extends ArrayAdapter<IPub> {
 		}
 
 		IPub pub = data[position];
-		DecimalFormat numberFormat = new DecimalFormat("#0.00");
 		holder.txtTitle.setText(pub.getName());
-		holder.distanceText.setText((numberFormat.format(Distance.calcDistBetweenTwoLatLng(new LatLng(pub.getLatitude(), pub.getLongitude()), UserLocation.getInstance().getCurrentLatLng()))) + " "
-				+ "km");
+		holder.distanceText.setText(pub.getBranch() != null ? pub.getBranch() : "");
 
 		switch (pub.getQueueTime()) {
 			case 1:
