@@ -22,6 +22,8 @@ import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.OpeningHours;
 import se.chalmers.krogkollen.pub.Pub;
 import se.chalmers.krogkollen.utils.StringConverter;
+import se.chalmers.krogkollen.vendor.IVendor;
+import se.chalmers.krogkollen.vendor.Vendor;
 /*
  * This file is part of Krogkollen.
  *
@@ -90,7 +92,26 @@ public class ParseBackend implements IBackend {
 		return tempPubList;
 	}
 
-	@Override
+    @Override
+    public List<IVendor> getAllVendors() throws NoBackendAccessException {
+        List<IVendor> tempVendorList = new ArrayList<IVendor>();
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Vendor");
+
+        List<ParseObject> tempList;
+        try {
+            tempList = query.find();
+            for (ParseObject object : tempList) {
+                tempVendorList.add(convertParseObjectToVendor(object));
+            }
+        }
+            catch(com.parse.ParseException e1){
+                throw new NoBackendAccessException(e1.getMessage());
+            }
+        return tempVendorList;
+    }
+
+    @Override
 	public int getQueueTime(IPub pub) throws NoBackendAccessException, NotFoundInBackendException {
 		ParseObject object = new ParseObject("Pub");
         long queueTimeLastUpdatedTimestamp;
@@ -187,6 +208,11 @@ public class ParseBackend implements IBackend {
                 queueTime, queueTimeLastUpdatedTimestamp, lastUpdated,
                 bitmap, object.getString("arrangedBy"), object.getObjectId());
 	}
+
+    public static IVendor convertParseObjectToVendor(ParseObject object){
+        return new Vendor(object.getString("name"), object.getDouble("latitude"),
+                object.getDouble("longitude"));
+    }
 
 	@Override
 	public void updatePubLocally(IPub pub) throws NoBackendAccessException,

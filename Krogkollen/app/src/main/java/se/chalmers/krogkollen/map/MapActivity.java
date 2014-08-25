@@ -48,6 +48,7 @@ import se.chalmers.krogkollen.backend.NotFoundInBackendException;
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
+import se.chalmers.krogkollen.vendor.IVendor;
 
 /*
  * This file is part of Krogkollen.
@@ -140,6 +141,17 @@ public class MapActivity extends Activity implements IMapView {
         new CreateMarkerTask().execute(pubArray);
     }
 
+    // Add markers for all vendors on the server to the map.
+    private void addVendorMarkers(List<IVendor> vendors) throws NoBackendAccessException,
+            NotFoundInBackendException {
+        IVendor[] vendorArray = new IVendor[vendors.size()];
+
+        for (int i = 0; i < vendors.size(); i++) {
+            vendorArray[i] = vendors.get(i);
+        }
+        new CreateMarkerTask().execute(vendorArray);
+    }
+
 
 
     /**
@@ -213,20 +225,20 @@ public class MapActivity extends Activity implements IMapView {
 		final LinearInterpolator interpolator = new LinearInterpolator();
 
 		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				long elapsed = SystemClock.uptimeMillis() - start;
-				float t = interpolator.getInterpolation((float) elapsed / duration);
-				double lng = t * toPosition.longitude + (1 - t) * startLatLng.longitude;
-				double lat = t * toPosition.latitude + (1 - t) * startLatLng.latitude;
-				userMarker.setPosition(new LatLng(lat, lng));
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed / duration);
+                double lng = t * toPosition.longitude + (1 - t) * startLatLng.longitude;
+                double lat = t * toPosition.latitude + (1 - t) * startLatLng.latitude;
+                userMarker.setPosition(new LatLng(lat, lng));
 
-				if (t < 1.0) {
-					// Post again 16ms later.
-					handler.postDelayed(this, 16);
-				}
-			}
-		});
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                }
+            }
+        });
 	}
 
 	@Override
@@ -372,6 +384,41 @@ public class MapActivity extends Activity implements IMapView {
             for (int i = 0; i < pubs.length; i++) {
                 IPub pub = pubs[i];
                 listMarkerOptions.add(MarkerOptionsFactory.createMarkerOptions(displayMetrics, MapActivity.this.getResources(), pub));
+            }
+            return listMarkerOptions;
+        }
+
+        @Override
+        protected void onPostExecute(List<MarkerOptions> markerOptions) {
+
+            // When settings are finished add all the markers to the map
+            // This is a GUI process and needs to be run here on the GUI thread.
+            for (MarkerOptions markerOption : markerOptions) {
+                pubMarkers.add(googleMap.addMarker(markerOption));
+            }
+            progressDialog2.hide();
+        }
+    }
+
+    // Used to direct workload when creating markers to another thread.
+    private class CreateVendorTask extends AsyncTask<IVendor, Void, List<MarkerOptions>> {
+
+        @Override
+        protected void onPreExecute()
+        {
+            progressDialog2 = ProgressDialog.show(MapActivity.this, "",
+                    MapActivity.this.getResources().getString(R.string.loading_pubs), false, false);
+        }
+
+        @Override
+        protected List<MarkerOptions> doInBackground(IVendor... vendors) {
+
+            List<MarkerOptions> listMarkerOptions = new ArrayList<MarkerOptions>();
+
+            // Create options for all the markers
+            for (int i = 0; i < vendors.length; i++) {
+                IVendor vendor = vendors[i];
+                listMarkerOptions.add(MarkerOptionsFactory.createMarkerOptions(displayMetrics, MapActivity.this.getResources(), vendor));
             }
             return listMarkerOptions;
         }
