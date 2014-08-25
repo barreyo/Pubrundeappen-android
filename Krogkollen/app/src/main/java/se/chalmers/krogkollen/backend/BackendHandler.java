@@ -82,7 +82,7 @@ public class BackendHandler {
      * @throws BackendNotInitializedException
      */
     public List<IVendor> getAllVendors() throws NoBackendAccessException, BackendNotInitializedException {
-        this.checkBackendInstance();;
+        this.checkBackendInstance();
         return backendInstance.getAllVendors();
     }
 

@@ -17,19 +17,19 @@ public class VendorUtilities {
 
     }
 
-    public VendorUtilities getInstance(){
+    public static VendorUtilities getInstance(){
         if(instance == null){
             instance = new VendorUtilities();
         }
         return instance;
     }
 
-    public void loadPubList() throws NoBackendAccessException, BackendNotInitializedException {
+    public void loadVendorList() throws NoBackendAccessException, BackendNotInitializedException {
 
         vendorList = BackendHandler.getInstance().getAllVendors();
     }
 
-    public List<IVendor> getPubList() {
+    public List<IVendor> getVendorList() {
         return vendorList;
     }
 }

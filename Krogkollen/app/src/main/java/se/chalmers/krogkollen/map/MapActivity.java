@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
@@ -49,6 +51,7 @@ import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
 import se.chalmers.krogkollen.vendor.IVendor;
+import se.chalmers.krogkollen.vendor.VendorUtilities;
 
 /*
  * This file is part of Krogkollen.
@@ -75,7 +78,7 @@ import se.chalmers.krogkollen.vendor.IVendor;
 public class MapActivity extends Activity implements IMapView {
 	private MapPresenter	presenter;
 	private Marker          userMarker;
-	private ProgressDialog	progressDialog, progressDialog2;
+	private ProgressDialog	progressDialog, progressDialog2, progressDialog3;
     private GoogleMap       googleMap;
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
@@ -96,6 +99,14 @@ public class MapActivity extends Activity implements IMapView {
 
         try {
             this.addPubMarkers(PubUtilities.getInstance().getPubList());
+        } catch (NoBackendAccessException e) {
+            this.showErrorMessage(this.getString(R.string.error_no_backend_access));
+        } catch (NotFoundInBackendException e) {
+            this.showErrorMessage(this.getString(R.string.error_no_backend_item));
+        }
+
+        try {
+            this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
         } catch (NoBackendAccessException e) {
             this.showErrorMessage(this.getString(R.string.error_no_backend_access));
         } catch (NotFoundInBackendException e) {
@@ -149,7 +160,7 @@ public class MapActivity extends Activity implements IMapView {
         for (int i = 0; i < vendors.size(); i++) {
             vendorArray[i] = vendors.get(i);
         }
-        new CreateMarkerTask().execute(vendorArray);
+        new CreateVendorMarkerTask().execute(vendorArray);
     }
 
 
@@ -401,13 +412,13 @@ public class MapActivity extends Activity implements IMapView {
     }
 
     // Used to direct workload when creating markers to another thread.
-    private class CreateVendorTask extends AsyncTask<IVendor, Void, List<MarkerOptions>> {
+    private class CreateVendorMarkerTask extends AsyncTask<IVendor, Void, List<MarkerOptions>> {
 
         @Override
         protected void onPreExecute()
         {
-            progressDialog2 = ProgressDialog.show(MapActivity.this, "",
-                    MapActivity.this.getResources().getString(R.string.loading_pubs), false, false);
+            progressDialog3 = ProgressDialog.show(MapActivity.this, "",
+                    MapActivity.this.getResources().getString(R.string.loading_vendors), false, false);
         }
 
         @Override
@@ -418,7 +429,13 @@ public class MapActivity extends Activity implements IMapView {
             // Create options for all the markers
             for (int i = 0; i < vendors.length; i++) {
                 IVendor vendor = vendors[i];
-                listMarkerOptions.add(MarkerOptionsFactory.createMarkerOptions(displayMetrics, MapActivity.this.getResources(), vendor));
+                MarkerOptions options = new MarkerOptions();
+                Bitmap bitmap = BitmapFactory.decodeResource(MapActivity.this.getResources(), Constants.MARKER_VENDOR);
+                Bitmap bitmapResult = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                bitmap.recycle();
+                options.position(new LatLng(vendor.getLatitude(), vendor.getLongitude()));
+                options.icon(BitmapDescriptorFactory.fromBitmap(bitmapResult));
+                listMarkerOptions.add(options);
             }
             return listMarkerOptions;
         }
@@ -429,9 +446,9 @@ public class MapActivity extends Activity implements IMapView {
             // When settings are finished add all the markers to the map
             // This is a GUI process and needs to be run here on the GUI thread.
             for (MarkerOptions markerOption : markerOptions) {
-                pubMarkers.add(googleMap.addMarker(markerOption));
+                googleMap.addMarker(markerOption);
             }
-            progressDialog2.hide();
+            progressDialog3.hide();
         }
     }
 }
