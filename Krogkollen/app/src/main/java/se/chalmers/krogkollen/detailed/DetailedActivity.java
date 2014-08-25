@@ -22,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.readystatesoftware.systembartint.SystemBarTintManager;
+
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -159,6 +161,11 @@ public class DetailedActivity extends Activity implements IDetailedView {
         if (API_LEVEL >= 19)
         {
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+            SystemBarTintManager tintManager = new SystemBarTintManager(this);
+            // enable status bar tint
+            tintManager.setStatusBarTintEnabled(true);
+            tintManager.setTintColor(Color.parseColor("#222222"));
         }
 
 		presenter = new DetailedPresenter();

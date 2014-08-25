@@ -79,7 +79,6 @@ public class PubUtilities {
 	 * @throws NoBackendAccessException
 	 */
 	public void refreshPubList() throws NoBackendAccessException, BackendNotInitializedException {
-		pubList.clear();
 		loadPubList();
 	}
 

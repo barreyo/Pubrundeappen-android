@@ -5,9 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,21 +18,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import se.chalmers.krogkollen.IView;
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.adapter.PubListAdapter;
-import se.chalmers.krogkollen.adapter.TabsPagerAdapter;
-import se.chalmers.krogkollen.backend.BackendHandler;
-import se.chalmers.krogkollen.backend.BackendNotInitializedException;
-import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.detailed.DetailedActivity;
 import se.chalmers.krogkollen.help.HelpActivity;
 import se.chalmers.krogkollen.pub.IPub;
-import se.chalmers.krogkollen.pub.Pub;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
 
@@ -61,45 +53,18 @@ import se.chalmers.krogkollen.utils.Constants;
  * user can chose between. Such as distance, queue-time or favorites.
  * 
  */
-public class ListActivity extends Activity implements IListView {
+public class ListActivity extends Activity implements IView {
 
     private List<IPub>              mItems;
     private RefreshableListView     mListView;
     private ArrayAdapter<IPub>      adapter;
     private boolean                 firstRun = true, finishingAnimation = false;
-
-	/*private ViewPager			viewPager;
-	private TabsPagerAdapter    mAdapter;
-	private ActionBar			actionBar;
-	private String[]			tabs;
-	private IListPresenter		presenter;*/
+    private ActionBar               actionBar;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_list);
-
-        /*
-		// Tab titles
-		tabs = new String[] { getString(R.string.list_tab_name_queue_time), getString(R.string.list_tab_name_distance)};
-
-		// Instantiates
-		viewPager = (ViewPager) findViewById(R.id.pager);
-		actionBar = getActionBar();
-		mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
-		presenter = new ListPresenter(this);
-		viewPager.setAdapter(mAdapter);
-
-		actionBar.setHomeButtonEnabled(false);
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-		// Adding Tabs
-		for (String tab_name : tabs) {
-			actionBar.addTab(actionBar.newTab().setText(tab_name)
-					.setTabListener(this.presenter));
-		}
-
-		viewPager.setOnPageChangeListener(presenter);*/
 
         mItems = new ArrayList<IPub>();
 
@@ -143,12 +108,14 @@ public class ListActivity extends Activity implements IListView {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Bundle bundle = new Bundle();
                 bundle.putString(Constants.MAP_PRESENTER_KEY, mItems.get(position).getID());
+                System.out.println("IDDDDD:  " + mItems.get(position).getID());
                 ListActivity.this.navigate(DetailedActivity.class, bundle);
             }
         });
 
 		// Remove the default logo icon and add our list icon.
-		ActionBar actionBar = getActionBar();
+		actionBar = getActionBar();
+
 		actionBar.setIcon(R.drawable.map_icon);
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setDisplayHomeAsUpEnabled(true);
@@ -160,22 +127,10 @@ public class ListActivity extends Activity implements IListView {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.list, menu);
-
 		return true;
 	}
-/*
-	@Override
-	public void setActionBarSelectedNavigationItem(int pos) {
-		actionBar.setSelectedNavigationItem(pos);
-	}
-
-	@Override
-	public void setViewPagerCurrentItem(int pos) {
-		viewPager.setCurrentItem(pos);
-	} */
 
 	@Override
 	public void navigate(Class<?> destination) {
@@ -218,16 +173,6 @@ public class ListActivity extends Activity implements IListView {
 	}
 
     @Override
-    public void setActionBarSelectedNavigationItem(int pos) {
-
-    }
-
-    @Override
-    public void setViewPagerCurrentItem(int pos) {
-
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         System.out.println("RESUME");
@@ -235,11 +180,15 @@ public class ListActivity extends Activity implements IListView {
             new RefreshListData().execute();
         }
         firstRun = false;
+        actionBar.show();
     }
 
-    public void update() {
-		//mAdapter.notifyDataSetChanged();
-	}
+    @Override
+    public void onPause() {
+        super.onResume();
+
+        actionBar.hide();
+    }
 
     private class RefreshListData extends AsyncTask<Void, Void, Void> {
 

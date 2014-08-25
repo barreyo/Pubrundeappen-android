@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -91,6 +92,18 @@ public class MapActivity extends Activity implements IMapView {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
+
+        int API_LEVEL =  android.os.Build.VERSION.SDK_INT;
+
+        if (API_LEVEL >= 19)
+        {
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+            SystemBarTintManager tintManager = new SystemBarTintManager(this);
+            // enable status bar tint
+            tintManager.setStatusBarTintEnabled(true);
+            tintManager.setTintColor(Color.parseColor("#222222"));
+        }
 
         // Initiate map
         pubMarkers = new ArrayList<Marker>();

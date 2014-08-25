@@ -6,23 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
-
-import java.text.DecimalFormat;
 import java.util.List;
 
 import se.chalmers.krogkollen.R;
-import se.chalmers.krogkollen.list.SortedListFragment;
-import se.chalmers.krogkollen.map.UserLocation;
 import se.chalmers.krogkollen.pub.IPub;
-import se.chalmers.krogkollen.utils.Distance;
-import se.chalmers.krogkollen.utils.Preferences;
-
-// TODO why is this in krogkollen.list while TabsPagerAdapter is in krogkollen.adapter?
 
 /**
  * An adapter handling the different items in a list
@@ -34,7 +24,6 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 	List<IPub> data;
 	View row;
 	PubHolder holder;
-	//SortedListFragment fragment;
 
 	/**
 	 * A constructor that creates an PubListAdapter.
@@ -75,6 +64,8 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 
         if (pub.getBranch() != null) {
             holder.subText.setText(pub.getBranch());
+        } else {
+            holder.subText.setText("");
         }
         /*
 		DecimalFormat numberFormat = new DecimalFormat("#0.00");

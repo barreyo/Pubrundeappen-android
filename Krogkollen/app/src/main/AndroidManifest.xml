@@ -55,7 +55,7 @@
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="se.chalmers.krogkollen.map.MapActivity" />
+                android:value="se.chalmers.krogkollen.map.MapActivity"/>
         </activity>
         <activity android:name="se.chalmers.krogkollen.help.HelpActivity"
             android:label="@string/title_activity_help"
