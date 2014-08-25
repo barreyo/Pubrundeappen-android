@@ -23,7 +23,7 @@
             android:orderInCategory="100"
             android:icon="@drawable/refresh_icon"
             android:title="@string/refresh"
-            android:showAsAction="ifRoom"/>
+            android:showAsAction="always"/>
 
     <item
             android:id="@+id/go_to_my_location"
