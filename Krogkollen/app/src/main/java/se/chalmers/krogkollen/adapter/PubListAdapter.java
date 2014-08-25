@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.list.SortedListFragment;
@@ -30,10 +31,10 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 
 	Context context;
 	int layoutResourceId;
-	IPub data[] = null;
+	List<IPub> data;
 	View row;
 	PubHolder holder;
-	SortedListFragment fragment;
+	//SortedListFragment fragment;
 
 	/**
 	 * A constructor that creates an PubListAdapter.
@@ -41,12 +42,12 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 	 * @param layoutResourceId
 	 * @param data
 	 */
-	public PubListAdapter(Context context, int layoutResourceId, IPub[] data, SortedListFragment fragment) {
+	public PubListAdapter(Context context, int layoutResourceId, List<IPub> data) {
 		super(context, layoutResourceId, data);
 		this.layoutResourceId = layoutResourceId;
 		this.context = context;
 		this.data = data;
-		this.fragment = fragment;
+		//this.fragment = fragment;
 
 	}
 
@@ -62,16 +63,22 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 			holder = new PubHolder();
 			holder.imgIcon = (ImageView)row.findViewById(R.id.listview_image);
 			holder.txtTitle = (TextView)row.findViewById(R.id.listview_title);
-			holder.distanceText = (TextView)row.findViewById(R.id.listview_distance);
+			holder.subText = (TextView)row.findViewById(R.id.listview_subtext);
 
 			row.setTag(holder);
 		} else {
 			holder = (PubHolder)row.getTag();
 		}
 
-		IPub pub = data[position];
+		IPub pub = data.get(position);
+        holder.txtTitle.setText(pub.getName());
+
+        if (pub.getBranch() != null) {
+            holder.subText.setText(pub.getBranch());
+        }
+        /*
 		DecimalFormat numberFormat = new DecimalFormat("#0.00");
-		holder.txtTitle.setText(pub.getName());
+
 		double distance = Distance.calcDistBetweenTwoLatLng(new LatLng(pub.getLatitude(), pub.getLongitude()), UserLocation.getInstance().getCurrentLatLng());
 		if(distance < 1){
 			DecimalFormat numberFormatMeters = new DecimalFormat("#0");
@@ -79,7 +86,7 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 		}
 		else{
 			holder.distanceText.setText(""+(numberFormat.format(Distance.calcDistBetweenTwoLatLng(new LatLng(pub.getLatitude(),pub.getLongitude()), UserLocation.getInstance().getCurrentLatLng())))+" km");
-		}
+		}*/
 
 		switch(pub.getQueueTime()){
 			case 1:
@@ -106,6 +113,6 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 	{
 		ImageView imgIcon;
 		TextView txtTitle;
-		TextView distanceText;
+		TextView subText;
 	}
 }

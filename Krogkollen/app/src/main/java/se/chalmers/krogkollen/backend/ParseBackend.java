@@ -185,7 +185,7 @@ public class ParseBackend implements IBackend {
 		return new Pub(object.getString("name"), object.getString("description"),
 				object.getDouble("latitude"), object.getDouble("longitude"),opening, closing,
                 queueTime, queueTimeLastUpdatedTimestamp, lastUpdated,
-                bitmap, object.getObjectId());
+                bitmap, object.getString("arrangedBy"), object.getObjectId());
 	}
 
 	@Override

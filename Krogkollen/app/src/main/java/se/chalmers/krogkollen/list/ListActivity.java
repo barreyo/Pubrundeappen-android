@@ -1,17 +1,42 @@
 package se.chalmers.krogkollen.list;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import se.chalmers.krogkollen.R;
+import se.chalmers.krogkollen.adapter.PubListAdapter;
 import se.chalmers.krogkollen.adapter.TabsPagerAdapter;
+import se.chalmers.krogkollen.backend.BackendHandler;
+import se.chalmers.krogkollen.backend.BackendNotInitializedException;
+import se.chalmers.krogkollen.backend.NoBackendAccessException;
+import se.chalmers.krogkollen.detailed.DetailedActivity;
 import se.chalmers.krogkollen.help.HelpActivity;
+import se.chalmers.krogkollen.pub.IPub;
+import se.chalmers.krogkollen.pub.Pub;
+import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
 
 /*
@@ -36,19 +61,25 @@ import se.chalmers.krogkollen.utils.Constants;
  * user can chose between. Such as distance, queue-time or favorites.
  * 
  */
-public class ListActivity extends FragmentActivity implements IListView {
+public class ListActivity extends Activity implements IListView {
 
-	private ViewPager			viewPager;
+    private List<IPub>              mItems;
+    private RefreshableListView     mListView;
+    private ArrayAdapter<IPub>      adapter;
+    private boolean                 firstRun = true, finishingAnimation = false;
+
+	/*private ViewPager			viewPager;
 	private TabsPagerAdapter    mAdapter;
 	private ActionBar			actionBar;
 	private String[]			tabs;
-	private IListPresenter		presenter;
+	private IListPresenter		presenter;*/
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_list);
 
+        /*
 		// Tab titles
 		tabs = new String[] { getString(R.string.list_tab_name_queue_time), getString(R.string.list_tab_name_distance)};
 
@@ -68,13 +99,61 @@ public class ListActivity extends FragmentActivity implements IListView {
 					.setTabListener(this.presenter));
 		}
 
-		viewPager.setOnPageChangeListener(presenter);
+		viewPager.setOnPageChangeListener(presenter);*/
+
+        mItems = new ArrayList<IPub>();
+
+        mItems.addAll(PubUtilities.getInstance().getPubList());
+
+        Collections.sort(mItems, new PubQueueComparator());
+
+        adapter = new PubListAdapter(this, R.layout.listview_item, mItems);
+
+        mListView = (RefreshableListView) findViewById(R.id.listview);
+        mListView.setAdapter(adapter);
+
+        AnimationSet set = new AnimationSet(true);
+
+        Animation animation = new AlphaAnimation(0.0f, 1.0f);
+        animation.setDuration(300);
+        set.addAnimation(animation);
+
+        animation = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, -1.0f, Animation.RELATIVE_TO_SELF, 0.0f
+        );
+        animation.setDuration(300);
+        set.addAnimation(animation);
+
+        LayoutAnimationController controller =
+                new LayoutAnimationController(set, 0.25f);
+        mListView.setLayoutAnimation(controller);
+
+        // Callback to refresh the list
+        mListView.setOnRefreshListener(new RefreshableListView.OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshableListView listView) {
+                finishingAnimation = true;
+                new RefreshListData().execute();
+            }
+        });
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Bundle bundle = new Bundle();
+                bundle.putString(Constants.MAP_PRESENTER_KEY, mItems.get(position).getID());
+                ListActivity.this.navigate(DetailedActivity.class, bundle);
+            }
+        });
 
 		// Remove the default logo icon and add our list icon.
 		ActionBar actionBar = getActionBar();
 		actionBar.setIcon(R.drawable.map_icon);
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setDisplayHomeAsUpEnabled(true);
+
+        new RefreshListData().execute();
 	}
 
 	// Start the activity in a local method to keep the right context.
@@ -87,7 +166,7 @@ public class ListActivity extends FragmentActivity implements IListView {
 
 		return true;
 	}
-
+/*
 	@Override
 	public void setActionBarSelectedNavigationItem(int pos) {
 		actionBar.setSelectedNavigationItem(pos);
@@ -96,7 +175,7 @@ public class ListActivity extends FragmentActivity implements IListView {
 	@Override
 	public void setViewPagerCurrentItem(int pos) {
 		viewPager.setCurrentItem(pos);
-	}
+	} */
 
 	@Override
 	public void navigate(Class<?> destination) {
@@ -125,9 +204,6 @@ public class ListActivity extends FragmentActivity implements IListView {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.refresh_info:
-				mAdapter.notifyDataSetChanged();
-				break;
 			case R.id.search:
 				this.onSearchRequested();
 				break;
@@ -141,7 +217,82 @@ public class ListActivity extends FragmentActivity implements IListView {
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void update() {
-		mAdapter.notifyDataSetChanged();
+    @Override
+    public void setActionBarSelectedNavigationItem(int pos) {
+
+    }
+
+    @Override
+    public void setViewPagerCurrentItem(int pos) {
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.out.println("RESUME");
+        if (!firstRun) {
+            new RefreshListData().execute();
+        }
+        firstRun = false;
+    }
+
+    public void update() {
+		//mAdapter.notifyDataSetChanged();
 	}
+
+    private class RefreshListData extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            try {
+                PubUtilities.getInstance().refreshPubList();
+            } catch (Exception e) {
+                System.out.println("LOAD ERROR");
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            mItems.clear();
+            mItems.addAll(PubUtilities.getInstance().getPubList());
+            Collections.sort(mItems, new PubQueueComparator());
+
+            adapter.notifyDataSetChanged();
+            mListView.invalidateViews();
+            if (finishingAnimation) {
+                mListView.completeRefreshing();
+            } else {
+                mListView.invalidateViews();
+            }
+            mListView.refreshDrawableState();
+            finishingAnimation = false;
+
+            super.onPostExecute(result);
+        }
+    }
+
+    private class PubQueueComparator implements Comparator<IPub>
+    {
+        @Override
+        public int compare(IPub lhs, IPub rhs) {
+
+            int lhsQueueTime = lhs.getQueueTime();
+            int rhsQueueTime = rhs.getQueueTime();
+
+            if (lhsQueueTime == 0) {
+                lhsQueueTime = 4;
+            }
+
+            if(rhsQueueTime == 0) {
+                rhsQueueTime = 4;
+            }
+
+            return lhsQueueTime - rhsQueueTime;
+        }
+    }
 }

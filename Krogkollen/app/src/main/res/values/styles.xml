@@ -56,6 +56,5 @@
     <style name="Widget.ActionBar.Transparent">
         <item name="android:background">@android:color/transparent</item>
     </style>
-
 </resources>
 

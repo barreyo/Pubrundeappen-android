@@ -129,6 +129,7 @@ public class MapPresenter implements IMapPresenter {
         if (!MapActivity.firstLoad) {
             new RefreshTask().execute();
         }
+        MapActivity.firstLoad = false;
         this.userLocation.onResume();
     }
 
