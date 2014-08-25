@@ -2,7 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:paddingStart="14dp"
+    android:paddingLeft="14dp"
+    android:paddingEnd="14dp"
+    android:paddingRight="14dp">
     <se.chalmers.krogkollen.list.RefreshableListView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
