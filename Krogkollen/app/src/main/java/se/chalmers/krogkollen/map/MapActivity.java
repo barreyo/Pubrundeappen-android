@@ -17,13 +17,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -79,6 +83,9 @@ public class MapActivity extends Activity implements IMapView {
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
     public static boolean   firstLoad = true;
+    public static boolean   updating = false;
+    private Menu            menu;
+    private MenuItem        refreshItem;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -179,6 +186,9 @@ public class MapActivity extends Activity implements IMapView {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.map, menu);
 
+        this.refreshItem = menu.findItem(R.id.refresh_info);
+        this.menu = menu;
+
 		return true;
 	}
 
@@ -236,15 +246,23 @@ public class MapActivity extends Activity implements IMapView {
 
 	@Override
 	public void showProgressDialog() {
-		progressDialog = ProgressDialog.show(MapActivity.this, "",
-				getString(R.string.map_updating), false, false);
-        System.out.println("SHOW DIALOG");
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ImageView iv = (ImageView)inflater.inflate(R.layout.iv_refresh, null);
+        Animation rotation = AnimationUtils.loadAnimation(this, R.anim.slow_rotate);
+        rotation.setRepeatCount(Animation.INFINITE);
+        iv.startAnimation(rotation);
+        this.refreshItem.setActionView(iv);
     }
 
 	@Override
 	public void hideProgressDialog() {
-		progressDialog.hide();
-        System.out.println("HIDE DIALOG");
+        MenuItem m = menu.findItem(R.id.refresh_info);
+        if(m.getActionView()!=null)
+        {
+            // Remove the animation.
+            m.getActionView().clearAnimation();
+            m.setActionView(null);
+        }
     }
 
 	@Override
@@ -361,6 +379,8 @@ public class MapActivity extends Activity implements IMapView {
         {
             progressDialog2 = ProgressDialog.show(MapActivity.this, "",
                     MapActivity.this.getResources().getString(R.string.loading_pubs), false, false);
+
+            MapActivity.updating = true;
         }
 
         @Override
@@ -385,6 +405,7 @@ public class MapActivity extends Activity implements IMapView {
                 pubMarkers.add(googleMap.addMarker(markerOption));
             }
             progressDialog2.hide();
+            MapActivity.updating = false;
         }
     }
 }

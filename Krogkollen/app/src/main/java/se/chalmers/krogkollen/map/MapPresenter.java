@@ -94,7 +94,10 @@ public class MapPresenter implements IMapPresenter {
     public void onActionBarClicked(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh_info:
-                new RefreshTask().execute();
+
+                if (!MapActivity.updating) {
+                    new RefreshTask().execute();
+                }
                 break;
             case R.id.search:
                 mapView.onSearch();
@@ -126,7 +129,7 @@ public class MapPresenter implements IMapPresenter {
 
     @Override
     public void onResume() {
-        if (!MapActivity.firstLoad) {
+        if (!MapActivity.firstLoad && !MapActivity.updating) {
             new RefreshTask().execute();
         }
         MapActivity.firstLoad = false;
