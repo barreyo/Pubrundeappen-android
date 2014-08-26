@@ -435,6 +435,7 @@ public class MapActivity extends Activity implements IMapView {
                 bitmap.recycle();
                 options.position(new LatLng(vendor.getLatitude(), vendor.getLongitude()));
                 options.icon(BitmapDescriptorFactory.fromBitmap(bitmapResult));
+                options.anchor(0.5f,0.3f);
                 listMarkerOptions.add(options);
             }
             return listMarkerOptions;
