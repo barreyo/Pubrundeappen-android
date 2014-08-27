@@ -63,6 +63,7 @@ This file is part of Krogkollen.
     <string name="map_updating">Uppdaterar pubar&#8230;</string>
     <string name="map_user_name">user</string>
     <string name="loading_pubs">Laddar pubar&#8230;</string>
+    <string name="loading_vendors">Laddar återförsäljare</string>
     <string name="distance_km">km</string>
     
     <!--  Error message strings -->
