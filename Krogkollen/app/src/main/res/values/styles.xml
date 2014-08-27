@@ -36,13 +36,6 @@
 
     <style name="CustomActionBarTheme"
         parent="@android:style/Theme.Holo.Light.DarkActionBar">
-        <item name="androd:actionBarStyle">@style/MyActionBar</item>
-    </style>
-
-    <!-- ActionBar styles -->
-    <style name="MyActionBar"
-        parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">#222222</item>
     </style>
 
     <style name="HideUpIcon" parent="AppBaseTheme">

@@ -26,7 +26,8 @@ import se.chalmers.krogkollen.R;
  */
 public class Constants {
 
-	public static int			MAP_SHORT_QUEUE			= R.drawable.green_marker_bg;
+    public static final String MAIN_ACTIVITY_NAME       = "MAIN_ACTIVITY";
+    public static int			MAP_SHORT_QUEUE			= R.drawable.green_marker_bg;
 	public static int			MAP_MEDIUM_QUEUE		= R.drawable.yellow_marker_bg;
 	public static int			MAP_LONG_QUEUE			= R.drawable.red_marker_bg;
 	public static int			MAP_NO_INFO_QUEUE		= R.drawable.gray_marker_bg;

@@ -9,18 +9,6 @@
         android:showAsAction="never"/>
 
     <item
-        android:id="@+id/navigate_here"
-        android:orderInCategory="100"
-        android:title="@string/navigate_here"
-        android:showAsAction="never"/>
-
-    <item
-            android:id="@+id/refresh_info"
-            android:orderInCategory="100"
-            android:icon="@drawable/refresh_icon"
-            android:title="@string/refresh"
-            android:showAsAction="never"/>
-    <item
             android:id="@+id/action_help"
             android:orderInCategory="100"
             android:showAsAction="never"

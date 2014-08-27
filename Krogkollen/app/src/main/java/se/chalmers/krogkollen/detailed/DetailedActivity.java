@@ -22,8 +22,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.readystatesoftware.systembartint.SystemBarTintManager;
-
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -33,6 +31,7 @@ import se.chalmers.krogkollen.backend.BackendNotInitializedException;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.backend.NotFoundInBackendException;
 import se.chalmers.krogkollen.help.HelpActivity;
+import se.chalmers.krogkollen.map.MapActivity;
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
@@ -71,6 +70,8 @@ public class DetailedActivity extends Activity implements IDetailedView {
     private ProgressDialog		progressDialog;
 
     private boolean hidden = false;
+
+    private IPub                pub;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -161,11 +162,6 @@ public class DetailedActivity extends Activity implements IDetailedView {
         if (API_LEVEL >= 19)
         {
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-            SystemBarTintManager tintManager = new SystemBarTintManager(this);
-            // enable status bar tint
-            tintManager.setStatusBarTintEnabled(true);
-            tintManager.setTintColor(Color.parseColor("#222222"));
         }
 
 		presenter = new DetailedPresenter();
@@ -202,8 +198,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
         animation.setInterpolator(this, android.R.anim.decelerate_interpolator);
         view.startAnimation(animation);
 
-
-        IPub pub = PubUtilities.getInstance().getPub(getIntent().getStringExtra(Constants.MARKER_PUB_ID));
+        pub = PubUtilities.getInstance().getPub(getIntent().getStringExtra(Constants.MARKER_PUB_ID));
         this.pubTextView.setText(pub.getName());
         this.descriptionTextView.setText(pub.getDescription());
 
@@ -255,7 +250,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
             fixedClosingString += fixedClosing.getMinutes();
         }
 
-        this.openingHoursBranchTextView.setText(fixedOpeningString + " - " + fixedClosingString);
+        this.openingHoursBranchTextView.setText((pub.getBranch() != null ? pub.getBranch() + " | "  : "") + fixedOpeningString + " - " + fixedClosingString);
 
         if (pub.getBackground() != null) {
             Drawable d = new BitmapDrawable(getResources(), pub.getBackground());
@@ -306,6 +301,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	public void navigate(Class<?> destination, Bundle extras) {
 		Intent intent = new Intent(this, destination);
 		intent.putExtra(Constants.ACTIVITY_FROM, Constants.DETAILED_ACTIVITY_NAME);
+        intent.putExtras(extras);
 		startActivity(intent);
 	}
 
@@ -345,17 +341,12 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menuItem) {
 		switch (menuItem.getItemId()) {
-			case R.id.refresh_info:
-				try {
-					presenter.updateInfo();
-				} catch (NoBackendAccessException e) {
-					this.showErrorMessage(this.getString(R.string.error_no_backend_access));
-				} catch (NotFoundInBackendException e) {
-					this.showErrorMessage(this.getString(R.string.error_no_backend_item));
-				} catch (BackendNotInitializedException e) {
-					this.showErrorMessage(this.getString(R.string.error_backend_not_initialized));
-				}
-				break;
+            case R.id.show_on_map:
+                Bundle bundle = new Bundle();
+                bundle.putDouble("SHOW_ON_MAP_LATITUDE", pub.getLatitude());
+                bundle.putDouble("SHOW_ON_MAP_LONGITUDE", pub.getLongitude());
+                this.navigate(MapActivity.class, bundle);
+                break;
 			case R.id.action_help:
 				navigate(HelpActivity.class);
 				break;

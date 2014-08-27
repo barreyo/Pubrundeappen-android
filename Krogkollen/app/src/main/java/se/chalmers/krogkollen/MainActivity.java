@@ -22,6 +22,7 @@ import se.chalmers.krogkollen.backend.ParseBackend;
 import se.chalmers.krogkollen.map.MapActivity;
 import se.chalmers.krogkollen.map.UserLocation;
 import se.chalmers.krogkollen.pub.PubUtilities;
+import se.chalmers.krogkollen.utils.Constants;
 import se.chalmers.krogkollen.utils.Preferences;
 
 /*
@@ -126,6 +127,7 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Void result) {
 			// Start the main app when all initialization is finished.
 			Intent intent = new Intent(MainActivity.this, MapActivity.class);
+            intent.putExtra(Constants.ACTIVITY_FROM, Constants.MAIN_ACTIVITY_NAME);
 			startActivity(intent);
 		}
 	}

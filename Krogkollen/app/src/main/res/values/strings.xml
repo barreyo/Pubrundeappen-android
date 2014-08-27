@@ -87,5 +87,6 @@ This file is part of Krogkollen.
     <string name="list_tab_name_favorites">Favoriter</string>
     <string name="show_on_map">Visa på kartan</string>
     <string name="navigate_here">Navigera hit</string>
+    <string name="navigate_here_key">NAVIGATE_HERE_KEY</string>
 
 </resources>
