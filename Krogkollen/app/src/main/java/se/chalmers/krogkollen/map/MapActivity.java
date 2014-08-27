@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,7 @@ import java.util.Map;
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.backend.NotFoundInBackendException;
+import se.chalmers.krogkollen.backend.ParseBackend;
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
@@ -104,16 +107,21 @@ public class MapActivity extends Activity implements IMapView {
         } catch (NotFoundInBackendException e) {
             this.showErrorMessage(this.getString(R.string.error_no_backend_item));
         }
-
         try {
-            this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
+            if(!ParseBackend.isPubCrawlActive()) {
+                try {
+                    this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
+                } catch (NoBackendAccessException e) {
+                    this.showErrorMessage(this.getString(R.string.error_no_backend_access));
+                } catch (NotFoundInBackendException e) {
+                    this.showErrorMessage(this.getString(R.string.error_no_backend_item));
+                }
+            }
         } catch (NoBackendAccessException e) {
-            this.showErrorMessage(this.getString(R.string.error_no_backend_access));
-        } catch (NotFoundInBackendException e) {
-            this.showErrorMessage(this.getString(R.string.error_no_backend_item));
+            e.printStackTrace();
         }
 
-		// Create a presenter for this view.
+        // Create a presenter for this view.
 		presenter = new MapPresenter();
 		presenter.setView(this);
 

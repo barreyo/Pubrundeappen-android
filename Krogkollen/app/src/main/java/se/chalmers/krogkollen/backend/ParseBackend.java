@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.format.Time;
+import android.util.Log;
 
 import com.parse.GetDataCallback;
 import com.parse.Parse;
@@ -17,10 +18,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.OpeningHours;
 import se.chalmers.krogkollen.pub.Pub;
+import se.chalmers.krogkollen.pub.PubCrawl;
 import se.chalmers.krogkollen.utils.StringConverter;
 import se.chalmers.krogkollen.vendor.IVendor;
 import se.chalmers.krogkollen.vendor.Vendor;
@@ -246,4 +249,56 @@ public class ParseBackend implements IBackend {
 
         return (epochTime - queueTimeLastUpdatedTimestamp) > 3200;
 	}
+
+    private static List<ParseObject> getAllPubCrawls() throws NoBackendAccessException{
+        List<Date> pubCrawls = new ArrayList<Date>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("PubCrawl");
+        List<ParseObject> parseObjects;
+        try {
+            parseObjects = query.find();
+        }
+        catch(com.parse.ParseException e1){
+            throw new NoBackendAccessException(e1.getMessage());
+        }
+        return parseObjects;
+    }
+
+    public static PubCrawl getNextPubcrawl(){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("PubCrawl");
+        Calendar presentDate = Calendar.getInstance();
+        Date date = presentDate.getTime();
+        query.whereGreaterThanOrEqualTo("date", date);
+        query.orderByAscending("date");
+        ParseObject object = null;
+        try {
+            object = query.getFirst();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        PubCrawl nextPubCrawl = new PubCrawl(object.getString("name"), object.getDate("date"),
+                object.getString("textForTextView"));
+        return nextPubCrawl;
+    }
+
+    public static boolean isPubCrawlActive() throws NoBackendAccessException{
+        Log.d("", "" + getNextPubcrawl().getDescription());
+        Calendar presentDate = Calendar.getInstance();
+        TimeZone localTimeZone = presentDate.getTimeZone();
+        Date pubCrawlDate;
+        List<ParseObject> pubCrawls = getAllPubCrawls();
+        for(ParseObject pubCrawl : pubCrawls) {
+            pubCrawlDate = pubCrawl.getDate("date");
+            if ((pubCrawlDate.getYear() + 1900 == presentDate.get(Calendar.YEAR) &&
+                    pubCrawlDate.getMonth() == presentDate.get(Calendar.MONTH) &&
+                    pubCrawlDate.getDay() == presentDate.get(Calendar.DAY_OF_WEEK) - 1 &&
+                    presentDate.get(Calendar.HOUR_OF_DAY) >= 15) ||
+                    (pubCrawlDate.getYear() + 1900 == presentDate.get(Calendar.YEAR) &&
+                    pubCrawlDate.getMonth() == presentDate.get(Calendar.MONTH) &&
+                    pubCrawlDate.getDay()+1 == presentDate.get(Calendar.DAY_OF_WEEK) - 1 &&
+                    presentDate.get(Calendar.HOUR_OF_DAY) < 4) ) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
