@@ -49,4 +49,7 @@ public class Constants {
 
 	/** Key value used when sending intents */
 	public static final String	MAP_PRESENTER_KEY		= "se.chalmers.krogkollen.MAP_PRESENTER_KEY";
+
+    //Marker for vendor
+    public static final int MARKER_VENDOR = R.drawable.vendor_marker;
 }

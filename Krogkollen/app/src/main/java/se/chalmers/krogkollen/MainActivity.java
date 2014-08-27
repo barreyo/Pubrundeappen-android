@@ -24,6 +24,7 @@ import se.chalmers.krogkollen.map.UserLocation;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
 import se.chalmers.krogkollen.utils.Preferences;
+import se.chalmers.krogkollen.vendor.VendorUtilities;
 
 /*
  * This file is part of Krogkollen.
@@ -110,6 +111,7 @@ public class MainActivity extends Activity {
 
 			try {
 				PubUtilities.getInstance().loadPubList();
+                VendorUtilities.getInstance().loadVendorList();
 			} catch (NoBackendAccessException e) {
 				Toast.makeText(MainActivity.this, R.string.error_no_backend_access, Toast.LENGTH_LONG).show();
 			} catch (BackendNotInitializedException e) {

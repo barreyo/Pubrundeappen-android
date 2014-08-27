@@ -9,6 +9,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,6 +42,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +50,12 @@ import java.util.Map;
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.backend.NotFoundInBackendException;
+import se.chalmers.krogkollen.backend.ParseBackend;
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
+import se.chalmers.krogkollen.vendor.IVendor;
+import se.chalmers.krogkollen.vendor.VendorUtilities;
 
 /*
  * This file is part of Krogkollen.
@@ -73,10 +80,10 @@ import se.chalmers.krogkollen.utils.Constants;
  * This is a normal map with the user marked on the map, and with a list of pubs marked on the map.
  */
 public class MapActivity extends Activity implements IMapView {
-    private MapPresenter	presenter;
-    private Marker          userMarker;
-    private ProgressDialog	progressDialog, progressDialog2;
-    private GoogleMap       googleMap;
+	private MapPresenter	presenter;
+	private Marker          userMarker;
+	private ProgressDialog	progressDialog, progressDialog2, progressDialog3;
+    private GoogleMap googleMap;
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
     public static boolean   firstLoad = true;
@@ -111,27 +118,19 @@ public class MapActivity extends Activity implements IMapView {
                 this.showErrorMessage(this.getString(R.string.error_no_backend_item));
             }
         }
-
-        // Create a presenter for this view.
-        presenter = new MapPresenter();
-        presenter.setView(this);
-
-        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-
-                // Move camera to the clicked marker.
-                moveCameraToPosition(marker.getPosition(), googleMap.getCameraPosition().zoom);
-
-                if (marker.getTitle().equalsIgnoreCase(getString(R.string.map_user_name))) {
-                    return true;        // Suppress user marker click
-                } else {
-                    // Open detailed view.
-                    presenter.pubMarkerClicked(marker.getTitle());
+        try {
+            if(!ParseBackend.isPubCrawlActive()) {
+                try {
+                    this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
+                } catch (NoBackendAccessException e) {
+                    this.showErrorMessage(this.getString(R.string.error_no_backend_access));
+                } catch (NotFoundInBackendException e) {
+                    this.showErrorMessage(this.getString(R.string.error_no_backend_item));
                 }
-                return true; // Suppress default behavior; move camera and open info window.
             }
-        });
+        } catch (NoBackendAccessException e) {
+            e.printStackTrace();
+        }
 
         //getIntent().getDoubleExtra("SHOW_ON_MAP_LATITUDE", 0.0);
 
@@ -142,12 +141,35 @@ public class MapActivity extends Activity implements IMapView {
             pubLocation = new LatLng(getIntent().getDoubleExtra("SHOW_ON_MAP_LATITUDE", 0.0), getIntent().getDoubleExtra("SHOW_ON_MAP_LONGITUDE", 0.0));
         }
 
-        // Remove the default logo icon and add our list icon.
-        ActionBar actionBar = getActionBar();
-        actionBar.setIcon(R.drawable.list_icon);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-    }
+		presenter = new MapPresenter();
+		presenter.setView(this);
+
+		googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+			@Override
+			public boolean onMarkerClick(Marker marker) {
+                    // Move camera to the clicked marker.
+                    moveCameraToPosition(marker.getPosition(), googleMap.getCameraPosition().zoom);
+
+                    if (marker.getTitle().equalsIgnoreCase(getString(R.string.map_user_name))) {
+                        return true;        // Suppress user marker click
+                    } else if(marker.getTitle().equalsIgnoreCase("vendor")){
+                            return true;
+                        }
+                     else{
+                     // Open detailed view.
+                            presenter.pubMarkerClicked(marker.getTitle());
+                        }
+                   
+                    return true; // Suppress default behavior; move camera and open info window.
+			}
+		});
+
+		// Remove the default logo icon and add our list icon.
+		ActionBar actionBar = getActionBar();
+		actionBar.setIcon(R.drawable.list_icon);
+		actionBar.setDisplayShowTitleEnabled(false);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+	}
 
     // Add markers for all pubs on the server to the map.
     private void addPubMarkers(List<IPub> pubs) throws NoBackendAccessException,
@@ -158,6 +180,17 @@ public class MapActivity extends Activity implements IMapView {
             pubArray[i] = pubs.get(i);
         }
         new CreateMarkerTask().execute(pubArray);
+    }
+
+    // Add markers for all vendors on the server to the map.
+    private void addVendorMarkers(List<IVendor> vendors) throws NoBackendAccessException,
+            NotFoundInBackendException {
+        IVendor[] vendorArray = new IVendor[vendors.size()];
+
+        for (int i = 0; i < vendors.size(); i++) {
+            vendorArray[i] = vendors.get(i);
+        }
+        new CreateVendorMarkerTask().execute(vendorArray);
     }
 
 
@@ -224,18 +257,19 @@ public class MapActivity extends Activity implements IMapView {
         return true;
     }
 
-    @Override
-    public void animateUserMarker(final LatLng toPosition) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        Projection proj = googleMap.getProjection();
-        Point startPoint = proj.toScreenLocation(userMarker.getPosition());
-        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        final long duration = 500;
 
-        final LinearInterpolator interpolator = new LinearInterpolator();
+	@Override
+	public void animateUserMarker(final LatLng toPosition) {
+		final Handler handler = new Handler();
+		final long start = SystemClock.uptimeMillis();
+		Projection proj = googleMap.getProjection();
+		Point startPoint = proj.toScreenLocation(userMarker.getPosition());
+		final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+		final long duration = 500;
 
-        handler.post(new Runnable() {
+		final LinearInterpolator interpolator = new LinearInterpolator();
+
+		handler.post(new Runnable() {
             @Override
             public void run() {
                 long elapsed = SystemClock.uptimeMillis() - start;
@@ -257,8 +291,8 @@ public class MapActivity extends Activity implements IMapView {
         return this.getPreferences(Context.MODE_PRIVATE);
     }
 
-    @Override
-    public void showProgressDialog() {
+	@Override
+	public void showProgressDialog() {
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ImageView iv = (ImageView)inflater.inflate(R.layout.iv_refresh, null);
         Animation rotation = AnimationUtils.loadAnimation(this, R.anim.slow_rotate);
@@ -419,6 +453,49 @@ public class MapActivity extends Activity implements IMapView {
             }
             //progressDialog2.hide();
             MapActivity.updating = false;
+        }
+    }
+
+    // Used to direct workload when creating markers to another thread.
+    private class CreateVendorMarkerTask extends AsyncTask<IVendor, Void, List<MarkerOptions>> {
+
+        @Override
+        protected void onPreExecute()
+        {
+            progressDialog3 = ProgressDialog.show(MapActivity.this, "",
+                    MapActivity.this.getResources().getString(R.string.loading_vendors), false, false);
+        }
+
+        @Override
+        protected List<MarkerOptions> doInBackground(IVendor... vendors) {
+
+            List<MarkerOptions> listMarkerOptions = new ArrayList<MarkerOptions>();
+
+            // Create options for all the markers
+            for (int i = 0; i < vendors.length; i++) {
+                IVendor vendor = vendors[i];
+                MarkerOptions options = new MarkerOptions();
+                Bitmap bitmap = BitmapFactory.decodeResource(MapActivity.this.getResources(), Constants.MARKER_VENDOR);
+                Bitmap bitmapResult = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                bitmap.recycle();
+                options.position(new LatLng(vendor.getLatitude(), vendor.getLongitude()));
+                options.icon(BitmapDescriptorFactory.fromBitmap(bitmapResult));
+                options.anchor(0.5f,0.3f);
+                options.title("vendor");
+                listMarkerOptions.add(options);
+            }
+            return listMarkerOptions;
+        }
+
+        @Override
+        protected void onPostExecute(List<MarkerOptions> markerOptions) {
+
+            // When settings are finished add all the markers to the map
+            // This is a GUI process and needs to be run here on the GUI thread.
+            for (MarkerOptions markerOption : markerOptions) {
+                googleMap.addMarker(markerOption);
+            }
+            progressDialog3.hide();
         }
     }
 }

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -136,9 +137,9 @@ public class MapPresenter implements IMapPresenter {
 
     @Override
     public void pubMarkerClicked(String title) {
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.MAP_PRESENTER_KEY, title);
-        mapView.navigate(DetailedActivity.class, bundle);
+            Bundle bundle = new Bundle();
+            bundle.putString(Constants.MAP_PRESENTER_KEY, title);
+            mapView.navigate(DetailedActivity.class, bundle);
     }
 
     @Override

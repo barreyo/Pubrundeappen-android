@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import se.chalmers.krogkollen.pub.IPub;
+import se.chalmers.krogkollen.vendor.IVendor;
 
 
 
@@ -39,6 +40,12 @@ public interface IBackend {
 	 * @throws NoBackendAccessException
 	 */
 	public List<IPub> getAllPubs() throws NoBackendAccessException;
+
+    /**
+     * @return a list of all vendors contained in the backend
+     * @throws NoBackendAccessException
+     */
+    public List<IVendor> getAllVendors() throws NoBackendAccessException;
 
 	/**
 	 * Returns the queue time for the specified IPub object

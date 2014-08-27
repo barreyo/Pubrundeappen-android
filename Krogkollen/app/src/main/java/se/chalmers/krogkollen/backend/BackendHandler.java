@@ -21,6 +21,7 @@ package se.chalmers.krogkollen.backend;
 import java.util.List;
 
 import se.chalmers.krogkollen.pub.IPub;
+import se.chalmers.krogkollen.vendor.IVendor;
 
 
 /**
@@ -73,6 +74,17 @@ public class BackendHandler {
 		this.checkBackendInstance();
 		return backendInstance.getAllPubs();
 	}
+
+    /**
+     *
+     * @return a list containg all vendors in the current backend
+     * @throws NoBackendAccessException
+     * @throws BackendNotInitializedException
+     */
+    public List<IVendor> getAllVendors() throws NoBackendAccessException, BackendNotInitializedException {
+        this.checkBackendInstance();
+        return backendInstance.getAllVendors();
+    }
 
 	/**
 	 * @param pub
