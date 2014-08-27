@@ -147,17 +147,20 @@ public class MapActivity extends Activity implements IMapView {
 		googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
+                    // Move camera to the clicked marker.
+                    moveCameraToPosition(marker.getPosition(), googleMap.getCameraPosition().zoom);
 
-				// Move camera to the clicked marker.
-				moveCameraToPosition(marker.getPosition(), googleMap.getCameraPosition().zoom);
-
-				if (marker.getTitle().equalsIgnoreCase(getString(R.string.map_user_name))) {
-					return true;        // Suppress user marker click
-				} else {
-					// Open detailed view.
-					presenter.pubMarkerClicked(marker.getTitle());
-				}
-				return true; // Suppress default behavior; move camera and open info window.
+                    if (marker.getTitle().equalsIgnoreCase(getString(R.string.map_user_name))) {
+                        return true;        // Suppress user marker click
+                    } else if(marker.getTitle().equalsIgnoreCase("vendor")){
+                            return true;
+                        }
+                     else{
+                     // Open detailed view.
+                            presenter.pubMarkerClicked(marker.getTitle());
+                        }
+                   
+                    return true; // Suppress default behavior; move camera and open info window.
 			}
 		});
 
@@ -477,6 +480,7 @@ public class MapActivity extends Activity implements IMapView {
                 options.position(new LatLng(vendor.getLatitude(), vendor.getLongitude()));
                 options.icon(BitmapDescriptorFactory.fromBitmap(bitmapResult));
                 options.anchor(0.5f,0.3f);
+                options.title("vendor");
                 listMarkerOptions.add(options);
             }
             return listMarkerOptions;
