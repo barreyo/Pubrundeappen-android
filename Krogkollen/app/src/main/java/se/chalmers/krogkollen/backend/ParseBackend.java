@@ -263,7 +263,7 @@ public class ParseBackend implements IBackend {
         return parseObjects;
     }
 
-    public static PubCrawl getNextPubcrawl(){
+    public static PubCrawl getNextPubcrawl() throws NoBackendAccessException{
         ParseQuery<ParseObject> query = ParseQuery.getQuery("PubCrawl");
         Calendar presentDate = Calendar.getInstance();
         Date date = presentDate.getTime();
@@ -273,7 +273,7 @@ public class ParseBackend implements IBackend {
         try {
             object = query.getFirst();
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new NoBackendAccessException(e.getMessage());
         }
         PubCrawl nextPubCrawl = new PubCrawl(object.getString("name"), object.getDate("date"),
                 object.getString("textForTextView"));
@@ -281,7 +281,6 @@ public class ParseBackend implements IBackend {
     }
 
     public static boolean isPubCrawlActive() throws NoBackendAccessException{
-        Log.d("", "" + getNextPubcrawl().getDescription());
         Calendar presentDate = Calendar.getInstance();
         TimeZone localTimeZone = presentDate.getTimeZone();
         Date pubCrawlDate;
