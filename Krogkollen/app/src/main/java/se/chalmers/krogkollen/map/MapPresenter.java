@@ -137,9 +137,9 @@ public class MapPresenter implements IMapPresenter {
 
     @Override
     public void pubMarkerClicked(String title) {
-            Bundle bundle = new Bundle();
-            bundle.putString(Constants.MAP_PRESENTER_KEY, title);
-            mapView.navigate(DetailedActivity.class, bundle);
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.MAP_PRESENTER_KEY, title);
+        mapView.navigate(DetailedActivity.class, bundle);
     }
 
     @Override
@@ -205,11 +205,6 @@ public class MapPresenter implements IMapPresenter {
         // The code to be executed in a background thread.
         @Override
         protected Void doInBackground(Void... params) {
-            // Save the old list of pubs.
-            List<IPub> oldPubs = new ArrayList<IPub>();
-            for (IPub pub : PubUtilities.getInstance().getPubList()) {
-                oldPubs.add(pub);
-            }
             // Refresh with new pubs from the server.
             try {
                 PubUtilities.getInstance().refreshPubList();
@@ -219,48 +214,7 @@ public class MapPresenter implements IMapPresenter {
                 System.out.println("REFRESH ERROR");
             }
 
-            // List containing only pubs that have been changed, removed or added.
-            final HashMap<IPub, Integer> changedPubsHash = new HashMap<IPub, Integer>();
-
-            // Find the changed/removed pubs and add them to the new list; changedPubs.
-            for (IPub oldPub : oldPubs) {
-
-                // Used to find removed pubs.
-                boolean removed = true;
-                for (IPub newPub : PubUtilities.getInstance().getPubList()) {
-
-                    // Check if the pub is in the saved list of old pubs.
-                    if (oldPub.getID().equals(newPub.getID())) {
-                        removed = false;
-
-                        // Check if any of the relevant values for map markers has
-                        // changed.
-                        if (oldPub.getQueueTime() != newPub.getQueueTime() ||
-                                oldPub.getLatitude() != newPub.getLatitude() ||
-                                oldPub.getLongitude() != newPub.getLongitude() ||
-                                !oldPub.getName().equals(newPub.getName())) {
-                            changedPubsHash.put(newPub, PUB_CHANGED);
-                        }
-                    }
-                }
-                if (removed) {
-                    changedPubsHash.put(oldPub, PUB_REMOVED);
-                }
-            }
-
-            // Check if any new pubs have been added to the server and add them to the
-            // HashMap.
-            for (IPub newPub : PubUtilities.getInstance().getPubList()) {
-                boolean added = true;
-                for (IPub oldPub : oldPubs) {
-                    if (oldPub.getID().equals(newPub.getID())) {
-                        added = false;
-                    }
-                }
-                if (added) {
-                    changedPubsHash.put(newPub, PUB_ADDED);
-                }
-            }
+            final List<IPub> refreshedList = PubUtilities.getInstance().getPubList();
 
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
@@ -268,7 +222,7 @@ public class MapPresenter implements IMapPresenter {
                 @Override
                 public void run() {
                     try {
-                        mapView.refreshPubMarkers(changedPubsHash);
+                        mapView.refreshPubMarkers(refreshedList);
                     } catch (NoBackendAccessException e) {
                         mapView.showErrorMessage(mapView.getResources().getString(R.string.error_no_backend_access));
                     } catch (NotFoundInBackendException e) {

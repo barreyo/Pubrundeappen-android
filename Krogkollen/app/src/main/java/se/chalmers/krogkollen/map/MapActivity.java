@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,7 +41,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +81,7 @@ public class MapActivity extends Activity implements IMapView {
 	private MapPresenter	presenter;
 	private Marker          userMarker;
 	private ProgressDialog	progressDialog, progressDialog2, progressDialog3;
-    private GoogleMap googleMap;
+    private GoogleMap       googleMap;
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
     public static boolean   firstLoad = true;
@@ -198,29 +196,14 @@ public class MapActivity extends Activity implements IMapView {
     /**
      * Removes all pub markers, loads and adds them again.
      */
-    public synchronized void refreshPubMarkers(HashMap<IPub, Integer> changedPubsHash)
+    public synchronized void refreshPubMarkers(List<IPub> changedPubs)
             throws NoBackendAccessException, NotFoundInBackendException {
 
-        List<IPub> changedPubs = new ArrayList<IPub>();
-
-        for (Map.Entry<IPub, Integer> entry : changedPubsHash.entrySet()) {
-
-            IPub pub = entry.getKey();
-            Integer integer = entry.getValue();
-
-            // Find added and changed pubs
-            if (integer == MapPresenter.PUB_CHANGED || integer == MapPresenter.PUB_ADDED) {
-                changedPubs.add(pub);
-            }
-
-            // Just remove pub markers for pubs that currently got a marker on the map.
-            for (Marker marker : pubMarkers) {
-                if (pub.getID().equalsIgnoreCase(marker.getId())) {
-                    marker.remove();
-                    pubMarkers.remove(marker);
-                }
-            }
+        for (Marker marker : pubMarkers) {
+            marker.remove();
         }
+        pubMarkers.clear();
+
         this.addPubMarkers(changedPubs);
     }
 
@@ -462,8 +445,8 @@ public class MapActivity extends Activity implements IMapView {
         @Override
         protected void onPreExecute()
         {
-            progressDialog3 = ProgressDialog.show(MapActivity.this, "",
-                    MapActivity.this.getResources().getString(R.string.loading_vendors), false, false);
+            //progressDialog3 = ProgressDialog.show(MapActivity.this, "",
+            //        MapActivity.this.getResources().getString(R.string.loading_vendors), false, false);
         }
 
         @Override
@@ -495,7 +478,7 @@ public class MapActivity extends Activity implements IMapView {
             for (MarkerOptions markerOption : markerOptions) {
                 googleMap.addMarker(markerOption);
             }
-            progressDialog3.hide();
+            //progressDialog3.hide();
         }
     }
 }

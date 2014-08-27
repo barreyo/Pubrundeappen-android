@@ -69,7 +69,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
     private ProgressDialog		progressDialog;
 
-    private boolean hidden = false;
+    private boolean hidden = false, isAnimating = false;
 
     private IPub                pub;
 
@@ -106,10 +106,10 @@ public class DetailedActivity extends Activity implements IDetailedView {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
 
-                if (!hidden) {
+                if (!hidden && !isAnimating ) {
                     DetailedActivity.this.slideDownanimation(view);
                     hidden = true;
-                } else {
+                } else if (!isAnimating) {
                     DetailedActivity.this.slideUpAnimation(view);
                     hidden = false;
                 }
@@ -119,19 +119,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                System.out.println("onSCROLL");
-
-                if (Math.abs(distanceY) < 5) {
-                    return true;
-                }
-
-                if (distanceY > 0) {
-                    slideUpAnimation(view);
-                } else {
-                    slideDownanimation(view);
-                }
-
-                return true;
+                return false;
             }
 
             @Override
@@ -144,7 +132,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
                 System.out.println("onFLING");
 
-                return true;
+                return false;
             }
         });
 
@@ -358,6 +346,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	}
 
     private void slideUpAnimation(final View view) {
+        isAnimating = true;
         Animation animation = AnimationUtils.loadAnimation(DetailedActivity.this, R.anim.slide_in_bottom);
         animation.setInterpolator(DetailedActivity.this, android.R.anim.decelerate_interpolator);
         animation.setDuration(600);
@@ -371,7 +360,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-
+                isAnimating = false;
             }
 
             @Override
@@ -429,6 +418,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
     }
 
     private void slideDownanimation(final View view) {
+        isAnimating = true;
         Animation animation = AnimationUtils.loadAnimation(DetailedActivity.this, R.anim.slide_out_bottom);
         animation.setInterpolator(DetailedActivity.this, android.R.anim.accelerate_interpolator);
         animation.setDuration(600);
@@ -442,6 +432,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
             @Override
             public void onAnimationEnd(Animation animation) {
                 view.setVisibility(View.INVISIBLE);
+                isAnimating = false;
             }
 
             @Override

@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
+import java.util.List;
 
 import se.chalmers.krogkollen.IView;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
@@ -89,6 +90,6 @@ public interface IMapView extends IView, ICanSearch {
 	 */
 	public void hideProgressDialog();
 
-    public void refreshPubMarkers(HashMap<IPub, Integer> changedPubsHash)
+    public void refreshPubMarkers(List<IPub> pubs)
             throws NoBackendAccessException, NotFoundInBackendException;
 }
