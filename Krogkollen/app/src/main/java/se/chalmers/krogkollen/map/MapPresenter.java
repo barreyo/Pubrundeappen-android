@@ -2,6 +2,7 @@ package se.chalmers.krogkollen.map;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -71,6 +72,10 @@ public class MapPresenter implements IMapPresenter {
     private boolean				haveShownDialog		= false;
     private boolean				dontShowDialogAgain;
 
+    public MapPresenter(UserLocation userLocation) {
+        this.userLocation = userLocation;
+    }
+
     @Override
     public void setView(IView view) {
         mapView = (IMapView) view;
@@ -79,7 +84,6 @@ public class MapPresenter implements IMapPresenter {
         this.dontShowDialogAgain = sharedPref.getBoolean(
                 resources.getString(R.string.dont_show_again_key),
                 resources.getBoolean(R.bool.dont_show_again_default));
-        this.userLocation = UserLocation.getInstance();
         this.userLocation.addObserver(this);
         this.userLocation.startTrackingUser();
 

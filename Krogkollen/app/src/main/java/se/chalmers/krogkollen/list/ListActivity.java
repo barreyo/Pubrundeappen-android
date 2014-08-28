@@ -60,6 +60,7 @@ public class ListActivity extends Activity implements IView {
     private ArrayAdapter<IPub>      adapter;
     private boolean                 firstRun = true, finishingAnimation = false;
     private ActionBar               actionBar;
+    private boolean                 updating = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -99,7 +100,10 @@ public class ListActivity extends Activity implements IView {
             @Override
             public void onRefresh(RefreshableListView listView) {
                 finishingAnimation = true;
-                new RefreshListData().execute();
+                if (!updating) {
+                    updating = true;
+                    new RefreshListData().execute();
+                }
             }
         });
 
@@ -220,6 +224,8 @@ public class ListActivity extends Activity implements IView {
             }
             mListView.refreshDrawableState();
             finishingAnimation = false;
+
+            updating = false;
 
             super.onPostExecute(result);
         }

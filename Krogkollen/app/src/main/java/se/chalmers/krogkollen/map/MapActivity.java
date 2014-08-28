@@ -12,6 +12,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,9 +42,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
@@ -103,27 +102,12 @@ public class MapActivity extends Activity implements IMapView {
         googleMap.getUiSettings().setZoomControlsEnabled(false);
         displayMetrics = getResources().getDisplayMetrics();
 
-
         try {
             this.addPubMarkers(PubUtilities.getInstance().getPubList());
         } catch (NoBackendAccessException e) {
             this.showErrorMessage(this.getString(R.string.error_no_backend_access));
         } catch (NotFoundInBackendException e) {
             this.showErrorMessage(this.getString(R.string.error_no_backend_item));
-        }
-
-        try {
-            if(!ParseBackend.isPubCrawlActive()) {
-                try {
-                    this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
-                } catch (NoBackendAccessException e) {
-                    this.showErrorMessage(this.getString(R.string.error_no_backend_access));
-                } catch (NotFoundInBackendException e) {
-                    this.showErrorMessage(this.getString(R.string.error_no_backend_item));
-                }
-            }
-        } catch (NoBackendAccessException e) {
-            e.printStackTrace();
         }
 
         //getIntent().getDoubleExtra("SHOW_ON_MAP_LATITUDE", 0.0);
@@ -135,7 +119,7 @@ public class MapActivity extends Activity implements IMapView {
             pubLocation = new LatLng(getIntent().getDoubleExtra("SHOW_ON_MAP_LATITUDE", 0.0), getIntent().getDoubleExtra("SHOW_ON_MAP_LONGITUDE", 0.0));
         }
 
-        presenter = new MapPresenter();
+        presenter = new MapPresenter(new UserLocation((LocationManager) getSystemService(Context.LOCATION_SERVICE)));
         presenter.setView(this);
 
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -157,6 +141,20 @@ public class MapActivity extends Activity implements IMapView {
                 return true; // Suppress default behavior; move camera and open info window.
             }
         });
+
+        try {
+            if(!ParseBackend.isPubCrawlActive()) {
+                try {
+                    this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
+                } catch (NoBackendAccessException e) {
+                    this.showErrorMessage(this.getString(R.string.error_no_backend_access));
+                } catch (NotFoundInBackendException e) {
+                    this.showErrorMessage(this.getString(R.string.error_no_backend_item));
+                }
+            }
+        } catch (NoBackendAccessException e) {
+            System.out.println("Could not add vendor markers. No backend access.");
+        }
 
         // Remove the default logo icon and add our list icon.
         ActionBar actionBar = getActionBar();

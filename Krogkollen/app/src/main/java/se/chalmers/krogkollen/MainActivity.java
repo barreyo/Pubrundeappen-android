@@ -118,10 +118,6 @@ public class MainActivity extends Activity {
 				Toast.makeText(MainActivity.this, R.string.error_backend_not_initialized, Toast.LENGTH_LONG).show();
 			}
 
-			// initiate the user location and start the map activity.
-			UserLocation.init((LocationManager) MainActivity.this
-                    .getSystemService(Context.LOCATION_SERVICE));
-
 			return null; // No data to send to the post thread work method.
 		}
 
