@@ -148,13 +148,8 @@ public class MapPresenter implements IMapPresenter {
         if (status == Status.FIRST_LOCATION) {
             // User location has received a first location so a user marker is added and
             // map is centered on user.
-            if (MapActivity.pubLocation == null) {
-                this.mapView.addUserMarker(this.userLocation.getCurrentLatLng());
-                this.mapView.moveCameraToPosition(userLocation.getCurrentLatLng(), USER_ZOOM);
-            } else {
-                mapView.moveCameraToPosition(MapActivity.pubLocation, 5);
-                MapActivity.pubLocation = null;
-            }
+            this.mapView.addUserMarker(this.userLocation.getCurrentLatLng());
+            this.mapView.moveCameraToPosition(userLocation.getCurrentLatLng(), USER_ZOOM);
         } else if (status == Status.NORMAL_UPDATE) {
             // The location has been updated, move the marker accordingly.
             this.mapView.animateUserMarker(this.userLocation.getCurrentLatLng());

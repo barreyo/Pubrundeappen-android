@@ -78,9 +78,9 @@ import se.chalmers.krogkollen.vendor.VendorUtilities;
  * This is a normal map with the user marked on the map, and with a list of pubs marked on the map.
  */
 public class MapActivity extends Activity implements IMapView {
-	private MapPresenter	presenter;
-	private Marker          userMarker;
-	private ProgressDialog	progressDialog, progressDialog2, progressDialog3;
+    private MapPresenter	presenter;
+    private Marker          userMarker;
+    private ProgressDialog	progressDialog, progressDialog2, progressDialog3;
     private GoogleMap       googleMap;
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
@@ -104,18 +104,14 @@ public class MapActivity extends Activity implements IMapView {
         displayMetrics = getResources().getDisplayMetrics();
 
 
-        if (getIntent().getStringExtra(Constants.ACTIVITY_FROM).equals(Constants.MAIN_ACTIVITY_NAME)) {
-
-            System.out.println("TJOOOOO SWEEEEE");
-
-            try {
-                this.addPubMarkers(PubUtilities.getInstance().getPubList());
-            } catch (NoBackendAccessException e) {
-                this.showErrorMessage(this.getString(R.string.error_no_backend_access));
-            } catch (NotFoundInBackendException e) {
-                this.showErrorMessage(this.getString(R.string.error_no_backend_item));
-            }
+        try {
+            this.addPubMarkers(PubUtilities.getInstance().getPubList());
+        } catch (NoBackendAccessException e) {
+            this.showErrorMessage(this.getString(R.string.error_no_backend_access));
+        } catch (NotFoundInBackendException e) {
+            this.showErrorMessage(this.getString(R.string.error_no_backend_item));
         }
+
         try {
             if(!ParseBackend.isPubCrawlActive()) {
                 try {
@@ -139,35 +135,35 @@ public class MapActivity extends Activity implements IMapView {
             pubLocation = new LatLng(getIntent().getDoubleExtra("SHOW_ON_MAP_LATITUDE", 0.0), getIntent().getDoubleExtra("SHOW_ON_MAP_LONGITUDE", 0.0));
         }
 
-		presenter = new MapPresenter();
-		presenter.setView(this);
+        presenter = new MapPresenter();
+        presenter.setView(this);
 
-		googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-			@Override
-			public boolean onMarkerClick(Marker marker) {
-                    // Move camera to the clicked marker.
-                    moveCameraToPosition(marker.getPosition(), googleMap.getCameraPosition().zoom);
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                // Move camera to the clicked marker.
+                moveCameraToPosition(marker.getPosition(), googleMap.getCameraPosition().zoom);
 
-                    if (marker.getTitle().equalsIgnoreCase(getString(R.string.map_user_name))) {
-                        return true;        // Suppress user marker click
-                    } else if(marker.getTitle().equalsIgnoreCase("vendor")){
-                            return true;
-                        }
-                     else{
-                     // Open detailed view.
-                            presenter.pubMarkerClicked(marker.getTitle());
-                        }
-                   
-                    return true; // Suppress default behavior; move camera and open info window.
-			}
-		});
+                if (marker.getTitle().equalsIgnoreCase(getString(R.string.map_user_name))) {
+                    return true;        // Suppress user marker click
+                } else if(marker.getTitle().equalsIgnoreCase("vendor")){
+                    return true;
+                }
+                else{
+                    // Open detailed view.
+                    presenter.pubMarkerClicked(marker.getTitle());
+                }
 
-		// Remove the default logo icon and add our list icon.
-		ActionBar actionBar = getActionBar();
-		actionBar.setIcon(R.drawable.list_icon);
-		actionBar.setDisplayShowTitleEnabled(false);
-		actionBar.setDisplayHomeAsUpEnabled(true);
-	}
+                return true; // Suppress default behavior; move camera and open info window.
+            }
+        });
+
+        // Remove the default logo icon and add our list icon.
+        ActionBar actionBar = getActionBar();
+        actionBar.setIcon(R.drawable.list_icon);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
 
     // Add markers for all pubs on the server to the map.
     private void addPubMarkers(List<IPub> pubs) throws NoBackendAccessException,
@@ -241,18 +237,18 @@ public class MapActivity extends Activity implements IMapView {
     }
 
 
-	@Override
-	public void animateUserMarker(final LatLng toPosition) {
-		final Handler handler = new Handler();
-		final long start = SystemClock.uptimeMillis();
-		Projection proj = googleMap.getProjection();
-		Point startPoint = proj.toScreenLocation(userMarker.getPosition());
-		final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-		final long duration = 500;
+    @Override
+    public void animateUserMarker(final LatLng toPosition) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = googleMap.getProjection();
+        Point startPoint = proj.toScreenLocation(userMarker.getPosition());
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+        final long duration = 500;
 
-		final LinearInterpolator interpolator = new LinearInterpolator();
+        final LinearInterpolator interpolator = new LinearInterpolator();
 
-		handler.post(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 long elapsed = SystemClock.uptimeMillis() - start;
@@ -274,14 +270,16 @@ public class MapActivity extends Activity implements IMapView {
         return this.getPreferences(Context.MODE_PRIVATE);
     }
 
-	@Override
-	public void showProgressDialog() {
-        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ImageView iv = (ImageView)inflater.inflate(R.layout.iv_refresh, null);
-        Animation rotation = AnimationUtils.loadAnimation(this, R.anim.slow_rotate);
-        rotation.setRepeatCount(Animation.INFINITE);
-        iv.startAnimation(rotation);
-        this.refreshItem.setActionView(iv);
+    @Override
+    public void showProgressDialog() {
+        if (refreshItem != null) {
+            LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            ImageView iv = (ImageView)inflater.inflate(R.layout.iv_refresh, null);
+            Animation rotation = AnimationUtils.loadAnimation(this, R.anim.slow_rotate);
+            rotation.setRepeatCount(Animation.INFINITE);
+            iv.startAnimation(rotation);
+            this.refreshItem.setActionView(iv);
+        }
     }
 
     @Override
