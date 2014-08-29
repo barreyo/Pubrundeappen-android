@@ -1,9 +1,9 @@
 package se.chalmers.krogkollen.countdown;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +48,7 @@ public class CountdownFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     public CountdownFragment() {
         // Required empty public constructor
     }
@@ -65,7 +66,19 @@ public class CountdownFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_countdown, container, false);
+        View view = inflater.inflate(R.layout.fragment_countdown, container, false);
+        return view;
+    }
+
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getFragmentManager().beginTransaction().remove(CountdownFragment.this).commit();
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -89,6 +102,7 @@ public class CountdownFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener.onFragmentInteraction(null);
         mListener = null;
     }
 

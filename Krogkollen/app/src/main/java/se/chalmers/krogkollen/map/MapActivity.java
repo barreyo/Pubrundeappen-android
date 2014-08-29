@@ -3,6 +3,8 @@ package se.chalmers.krogkollen.map;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog.Builder;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,17 +13,23 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -48,6 +56,7 @@ import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.backend.NotFoundInBackendException;
 import se.chalmers.krogkollen.backend.ParseBackend;
+import se.chalmers.krogkollen.countdown.CountdownFragment;
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
@@ -76,10 +85,9 @@ import se.chalmers.krogkollen.vendor.VendorUtilities;
  *
  * This is a normal map with the user marked on the map, and with a list of pubs marked on the map.
  */
-public class MapActivity extends Activity implements IMapView {
+public class MapActivity extends Activity implements IMapView, CountdownFragment.OnFragmentInteractionListener {
     private MapPresenter	presenter;
     private Marker          userMarker;
-    private ProgressDialog	progressDialog, progressDialog2, progressDialog3;
     private GoogleMap       googleMap;
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
@@ -146,6 +154,7 @@ public class MapActivity extends Activity implements IMapView {
             if(!ParseBackend.isPubCrawlActive()) {
                 try {
                     this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
+                    findViewById(R.id.splash).setVisibility(View.VISIBLE);
                 } catch (NoBackendAccessException e) {
                     this.showErrorMessage(this.getString(R.string.error_no_backend_access));
                 } catch (NotFoundInBackendException e) {
@@ -155,6 +164,18 @@ public class MapActivity extends Activity implements IMapView {
         } catch (NoBackendAccessException e) {
             System.out.println("Could not add vendor markers. No backend access.");
         }
+
+        Display d = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int width = d.getWidth();
+        int height = d.getHeight();
+
+        FragmentManager fragmentManager = this.getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        CountdownFragment countdownFragment = new CountdownFragment();
+        getActionBar().hide();
+        fragmentTransaction.replace(android.R.id.content, new CountdownFragment());
+        fragmentTransaction.commit();
+
 
         // Remove the default logo icon and add our list icon.
         ActionBar actionBar = getActionBar();
@@ -184,8 +205,6 @@ public class MapActivity extends Activity implements IMapView {
         }
         new CreateVendorMarkerTask().execute(vendorArray);
     }
-
-
 
     /**
      * Removes all pub markers, loads and adds them again.
@@ -394,6 +413,12 @@ public class MapActivity extends Activity implements IMapView {
     @Override
     public void onSearch() {
         this.onSearchRequested();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        if (uri == null)
+            getActionBar().show();
     }
 
 
