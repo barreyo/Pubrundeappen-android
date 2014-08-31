@@ -29,7 +29,6 @@ This file is part of Krogkollen.
                 android:layout_height="match_parent"
                 android:name="com.google.android.gms.maps.MapFragment"/>
 
-
             <fragment
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"

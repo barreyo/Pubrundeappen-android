@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog.Builder;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,16 +12,14 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -37,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,6 +56,7 @@ import se.chalmers.krogkollen.backend.NotFoundInBackendException;
 import se.chalmers.krogkollen.backend.ParseBackend;
 import se.chalmers.krogkollen.countdown.CountdownFragment;
 import se.chalmers.krogkollen.pub.IPub;
+import se.chalmers.krogkollen.pub.PubCrawl;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
 import se.chalmers.krogkollen.vendor.IVendor;
@@ -96,6 +95,7 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
     private Menu            menu;
     private MenuItem        refreshItem;
     public static LatLng    pubLocation;
+    private CountdownFragment countdownFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +150,13 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
             }
         });
 
+        FragmentManager fragmentManager = this.getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        countdownFragment = new CountdownFragment();
+        getActionBar().hide();
+        fragmentTransaction.replace(android.R.id.content, new CountdownFragment());
+        fragmentTransaction.commit();
+
         try {
             if(!ParseBackend.isPubCrawlActive()) {
                 try {
@@ -168,14 +175,6 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
         Display d = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int width = d.getWidth();
         int height = d.getHeight();
-
-        FragmentManager fragmentManager = this.getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        CountdownFragment countdownFragment = new CountdownFragment();
-        getActionBar().hide();
-        fragmentTransaction.replace(android.R.id.content, new CountdownFragment());
-        fragmentTransaction.commit();
-
 
         // Remove the default logo icon and add our list icon.
         ActionBar actionBar = getActionBar();
@@ -457,6 +456,26 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
             }
             //progressDialog2.hide();
             MapActivity.updating = false;
+        }
+    }
+
+    private class LoadNextPubCrawl extends AsyncTask<Void, Void, PubCrawl> {
+
+        @Override
+        protected PubCrawl doInBackground(Void... params) {
+            try {
+                return ParseBackend.getNextPubcrawl();
+            } catch (NoBackendAccessException e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(PubCrawl pubCrawl) {
+            if (pubCrawl != null) {
+                findViewById(R.id.splash).setVisibility(View.VISIBLE);
+
+            }
         }
     }
 

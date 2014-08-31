@@ -4,11 +4,18 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.Date;
 
 import se.chalmers.krogkollen.R;
+import se.chalmers.krogkollen.backend.NoBackendAccessException;
+import se.chalmers.krogkollen.backend.ParseBackend;
+import se.chalmers.krogkollen.pub.PubCrawl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,6 +31,8 @@ public class CountdownFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private TextView countdown, description;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -67,11 +76,43 @@ public class CountdownFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_countdown, container, false);
+
+        countdown = (TextView) view.findViewById(R.id.countdown_number);
+        description = (TextView) view.findViewById(R.id.countdown_main_text);
+        Time currentDate = new Time();
+        currentDate.setToNow();
+
+        PubCrawl pubCrawl = null;
+        try {
+            pubCrawl = ParseBackend.getNextPubcrawl();
+        } catch (NoBackendAccessException ignored) {}
+
+        System.out.println("YEAR: " + currentDate.year + " MONTH: " + currentDate.month + " DAY: " + currentDate.monthDay);
+        System.out.println("YEAR: " + (pubCrawl.getDate().getYear() + 1900) + " MONTH: " + pubCrawl.getDate().getMonth() + " DAY: " + pubCrawl.getDate().getDate());
+
+        String desc = pubCrawl.getDescription().replace("\\n", "\n");
+        description.setText(desc);
+
+        Date date = pubCrawl.getDate();
+        date.setYear(pubCrawl.getDate().getYear() + 1900);
+
+        int a = daysBetween(new Date(currentDate.year, currentDate.month, currentDate.monthDay), date);
+
+        String counter = "" + a;
+
+        countdown.setText(counter);
+
         return view;
     }
 
+    private int daysBetween(Date d1, Date d2){
+        return (int)( (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
