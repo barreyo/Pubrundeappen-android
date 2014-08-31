@@ -282,6 +282,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	public void navigate(Class<?> destination) {
 		Intent intent = new Intent(this, destination);
 		intent.putExtra(Constants.ACTIVITY_FROM, Constants.DETAILED_ACTIVITY_NAME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(intent);
 	}
 
@@ -289,6 +290,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
 	public void navigate(Class<?> destination, Bundle extras) {
 		Intent intent = new Intent(this, destination);
 		intent.putExtra(Constants.ACTIVITY_FROM, Constants.DETAILED_ACTIVITY_NAME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.putExtras(extras);
 		startActivity(intent);
 	}

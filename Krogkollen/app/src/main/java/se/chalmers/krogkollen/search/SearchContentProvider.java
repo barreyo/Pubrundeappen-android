@@ -13,7 +13,7 @@ import java.util.List;
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.PubUtilities;
-import se.chalmers.krogkollen.sort.SortBySearchRelevance;
+
 /*
  * This file is part of Krogkollen.
  *
@@ -52,8 +52,6 @@ public class SearchContentProvider extends ContentProvider {
 
 		List<IPub> allPubs = PubUtilities.getInstance().getPubList();
 		List<IPub> matchingPubs = SearchActivity.getMatchingPubs(query, allPubs);
-
-		matchingPubs = new SortBySearchRelevance(query).sortAlgorithm(matchingPubs);
 
 		cursor = new MatrixCursor(columns);
 

@@ -1,0 +1,50 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="se.chalmers.krogkollen.countdown.CountdownFragment"
+    android:name="android.app.DialogFragment">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        tools:context="se.chalmers.krogkollen.countdown.CountdownActivity"
+        android:orientation="vertical"
+        android:background="#c0000000"
+        android:id="@+id/countdown_bg">
+
+        <TextView
+            android:id="@+id/countdown_number"
+            android:text="23"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="120sp"
+            android:layout_marginTop="20dp"
+            android:textColor="@android:color/primary_text_dark"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="... dag(ar) kvar till pubrundan!"
+            android:textSize="22sp"
+            android:textColor="@android:color/secondary_text_dark"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/countdown_main_text"
+            android:text="Glöm inte skaffa Gästpass om du ska ha med dig en icke-chalmersist på pubrundan! Försäljningsställen visas på kartan!\n\nTagga!"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@android:color/secondary_text_dark"/>
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -3,7 +3,8 @@ package se.chalmers.krogkollen.map;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog.Builder;
-import android.app.ProgressDialog;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,15 +13,20 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.format.Time;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -28,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -41,15 +48,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.backend.NotFoundInBackendException;
 import se.chalmers.krogkollen.backend.ParseBackend;
+import se.chalmers.krogkollen.countdown.CountdownFragment;
 import se.chalmers.krogkollen.pub.IPub;
+import se.chalmers.krogkollen.pub.PubCrawl;
 import se.chalmers.krogkollen.pub.PubUtilities;
 import se.chalmers.krogkollen.utils.Constants;
 import se.chalmers.krogkollen.vendor.IVendor;
@@ -77,10 +84,9 @@ import se.chalmers.krogkollen.vendor.VendorUtilities;
  *
  * This is a normal map with the user marked on the map, and with a list of pubs marked on the map.
  */
-public class MapActivity extends Activity implements IMapView {
+public class MapActivity extends Activity implements IMapView, CountdownFragment.OnFragmentInteractionListener {
     private MapPresenter	presenter;
     private Marker          userMarker;
-    private ProgressDialog	progressDialog, progressDialog2, progressDialog3;
     private GoogleMap       googleMap;
     private List<Marker>    pubMarkers;
     private DisplayMetrics  displayMetrics;
@@ -89,6 +95,7 @@ public class MapActivity extends Activity implements IMapView {
     private Menu            menu;
     private MenuItem        refreshItem;
     public static LatLng    pubLocation;
+    private CountdownFragment countdownFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,27 +110,12 @@ public class MapActivity extends Activity implements IMapView {
         googleMap.getUiSettings().setZoomControlsEnabled(false);
         displayMetrics = getResources().getDisplayMetrics();
 
-
         try {
             this.addPubMarkers(PubUtilities.getInstance().getPubList());
         } catch (NoBackendAccessException e) {
             this.showErrorMessage(this.getString(R.string.error_no_backend_access));
         } catch (NotFoundInBackendException e) {
             this.showErrorMessage(this.getString(R.string.error_no_backend_item));
-        }
-
-        try {
-            if(!ParseBackend.isPubCrawlActive()) {
-                try {
-                    this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
-                } catch (NoBackendAccessException e) {
-                    this.showErrorMessage(this.getString(R.string.error_no_backend_access));
-                } catch (NotFoundInBackendException e) {
-                    this.showErrorMessage(this.getString(R.string.error_no_backend_item));
-                }
-            }
-        } catch (NoBackendAccessException e) {
-            e.printStackTrace();
         }
 
         //getIntent().getDoubleExtra("SHOW_ON_MAP_LATITUDE", 0.0);
@@ -135,7 +127,7 @@ public class MapActivity extends Activity implements IMapView {
             pubLocation = new LatLng(getIntent().getDoubleExtra("SHOW_ON_MAP_LATITUDE", 0.0), getIntent().getDoubleExtra("SHOW_ON_MAP_LONGITUDE", 0.0));
         }
 
-        presenter = new MapPresenter();
+        presenter = new MapPresenter(new UserLocation((LocationManager) getSystemService(Context.LOCATION_SERVICE)));
         presenter.setView(this);
 
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -157,6 +149,32 @@ public class MapActivity extends Activity implements IMapView {
                 return true; // Suppress default behavior; move camera and open info window.
             }
         });
+
+        FragmentManager fragmentManager = this.getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        countdownFragment = new CountdownFragment();
+        getActionBar().hide();
+        fragmentTransaction.replace(android.R.id.content, new CountdownFragment());
+        fragmentTransaction.commit();
+
+        try {
+            if(!ParseBackend.isPubCrawlActive()) {
+                try {
+                    this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
+                    findViewById(R.id.splash).setVisibility(View.VISIBLE);
+                } catch (NoBackendAccessException e) {
+                    this.showErrorMessage(this.getString(R.string.error_no_backend_access));
+                } catch (NotFoundInBackendException e) {
+                    this.showErrorMessage(this.getString(R.string.error_no_backend_item));
+                }
+            }
+        } catch (NoBackendAccessException e) {
+            System.out.println("Could not add vendor markers. No backend access.");
+        }
+
+        Display d = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int width = d.getWidth();
+        int height = d.getHeight();
 
         // Remove the default logo icon and add our list icon.
         ActionBar actionBar = getActionBar();
@@ -186,8 +204,6 @@ public class MapActivity extends Activity implements IMapView {
         }
         new CreateVendorMarkerTask().execute(vendorArray);
     }
-
-
 
     /**
      * Removes all pub markers, loads and adds them again.
@@ -398,6 +414,12 @@ public class MapActivity extends Activity implements IMapView {
         this.onSearchRequested();
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        if (uri == null)
+            getActionBar().show();
+    }
+
 
     // Used to direct workload when creating markers to another thread.
     private class CreateMarkerTask extends AsyncTask<IPub, Void, List<MarkerOptions>> {
@@ -434,6 +456,26 @@ public class MapActivity extends Activity implements IMapView {
             }
             //progressDialog2.hide();
             MapActivity.updating = false;
+        }
+    }
+
+    private class LoadNextPubCrawl extends AsyncTask<Void, Void, PubCrawl> {
+
+        @Override
+        protected PubCrawl doInBackground(Void... params) {
+            try {
+                return ParseBackend.getNextPubcrawl();
+            } catch (NoBackendAccessException e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(PubCrawl pubCrawl) {
+            if (pubCrawl != null) {
+                findViewById(R.id.splash).setVisibility(View.VISIBLE);
+
+            }
         }
     }
 

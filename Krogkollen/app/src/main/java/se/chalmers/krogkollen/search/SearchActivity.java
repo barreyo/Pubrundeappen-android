@@ -20,7 +20,6 @@ import se.chalmers.krogkollen.detailed.DetailedActivity;
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.Pub;
 import se.chalmers.krogkollen.pub.PubUtilities;
-import se.chalmers.krogkollen.sort.SortBySearchRelevance;
 import se.chalmers.krogkollen.utils.Constants;
 
 /*
@@ -97,8 +96,6 @@ public class SearchActivity extends ListActivity implements IView {
 		List<IPub> allPubs = PubUtilities.getInstance().getPubList();
 
 		List<IPub> matchingPubs = getMatchingPubs(query, allPubs);
-
-		matchingPubs = new SortBySearchRelevance(query).sortAlgorithm(matchingPubs);
 
 		pubs = this.convertListToArray(matchingPubs);
 
