@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.chalmers.krogkollen.R;
+import se.chalmers.krogkollen.backend.BackendHandler;
 import se.chalmers.krogkollen.backend.NoBackendAccessException;
 import se.chalmers.krogkollen.backend.NotFoundInBackendException;
 import se.chalmers.krogkollen.backend.ParseBackend;
@@ -101,6 +102,8 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        BackendHandler.getInstance().setBackend(new ParseBackend(this, "WgLQnilANHpjM3xITq0nM0eW8dByIgDDmxJzf6se", "9ZK7yjE1NiD244ymDHb8ZpbbWNNv3RuQq7ceEvJc"));
 
         // Initiate map
         pubMarkers = new ArrayList<Marker>();
