@@ -113,7 +113,11 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
         displayMetrics = getResources().getDisplayMetrics();
 
         try {
-            this.addPubMarkers(PubUtilities.getInstance().getPubList());
+            if (!PubUtilities.getInstance().getPubList().isEmpty()){
+                this.addPubMarkers(PubUtilities.getInstance().getPubList());
+            } else {
+                presenter.doUpdate();
+            }
         } catch (NoBackendAccessException e) {
             this.showErrorMessage(this.getString(R.string.error_no_backend_access));
         } catch (NotFoundInBackendException e) {
@@ -458,26 +462,6 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
             }
             //progressDialog2.hide();
             MapActivity.updating = false;
-        }
-    }
-
-    private class LoadNextPubCrawl extends AsyncTask<Void, Void, PubCrawl> {
-
-        @Override
-        protected PubCrawl doInBackground(Void... params) {
-            try {
-                return ParseBackend.getNextPubcrawl();
-            } catch (NoBackendAccessException e) {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(PubCrawl pubCrawl) {
-            if (pubCrawl != null) {
-                findViewById(R.id.splash).setVisibility(View.VISIBLE);
-
-            }
         }
     }
 

@@ -189,9 +189,13 @@ public class MapPresenter implements IMapPresenter {
         editor.commit();
     }
 
+    public void doUpdate() {
+        new RefreshTask().execute();
+    }
+
     // Send the heavy work of recreating the markers to another thread.
     // Only changed pubs/markers will be altered.
-    private class RefreshTask extends AsyncTask<Void, Void, Void>
+    public class RefreshTask extends AsyncTask<Void, Void, Void>
     {
         // Before running code in separate thread
         @Override

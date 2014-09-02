@@ -29,7 +29,7 @@ This file is part of Krogkollen.
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
             android:paddingBottom="15dp"
-            android:background="@drawable/bg_card">
+            android:background="#ffff">
 
         <ScrollView
                 android:id="@+id/scrollViewHelp"
