@@ -131,7 +131,7 @@ public class ParseBackend implements IBackend {
 				throw new NoBackendAccessException(e.getMessage());
 			}
 		}
-		return !queueTimeIsRecentlyUpdated(queueTimeLastUpdatedTimestamp) ? 0 : queueTime;
+		return (!queueTimeIsRecentlyUpdated(queueTimeLastUpdatedTimestamp)) ? 0 : queueTime;
 	}
 
 	@Override

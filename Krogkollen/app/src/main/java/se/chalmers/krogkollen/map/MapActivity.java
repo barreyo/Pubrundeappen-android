@@ -101,9 +101,8 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
-
         BackendHandler.getInstance().setBackend(new ParseBackend(this, "WgLQnilANHpjM3xITq0nM0eW8dByIgDDmxJzf6se", "9ZK7yjE1NiD244ymDHb8ZpbbWNNv3RuQq7ceEvJc"));
+        setContentView(R.layout.activity_map);
 
         // Initiate map
         pubMarkers = new ArrayList<Marker>();

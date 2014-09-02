@@ -62,11 +62,11 @@ This file is part of Krogkollen.
                 android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus facilisis feugiat ante sed hendrerit. Aliquam semper id purus dapibus tincidunt. In tincidunt dignissim eros, sit amet bibendum arcu dictum eget. Nunc velit urna, ultricies sed accumsan eu, tincidunt ut odio. Curabitur commodo nec purus ut euismod. Vivamus hendrerit justo non nisi "
                 android:textSize="16sp"
                 android:textColor="#666666"
-                />
-        
+                android:scrollbars="vertical"/>
+
             <View
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"/>
         
             <TextView

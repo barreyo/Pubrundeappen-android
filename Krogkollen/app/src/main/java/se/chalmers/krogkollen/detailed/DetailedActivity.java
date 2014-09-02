@@ -238,7 +238,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
             fixedClosingString += fixedClosing.getMinutes();
         }
 
-        this.openingHoursBranchTextView.setText((pub.getBranch() != null ? pub.getBranch() + " | "  : "") + fixedOpeningString + " - " + fixedClosingString);
+        this.openingHoursBranchTextView.setText(fixedOpeningString + " - " + fixedClosingString);
 
         if (pub.getBackground() != null) {
             Drawable d = new BitmapDrawable(getResources(), pub.getBackground());
