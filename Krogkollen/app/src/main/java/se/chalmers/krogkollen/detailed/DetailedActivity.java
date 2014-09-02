@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -21,6 +23,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.parse.GetDataCallback;
+import com.parse.ParseException;
 
 import java.util.Date;
 import java.util.TimeZone;
@@ -241,8 +246,16 @@ public class DetailedActivity extends Activity implements IDetailedView {
         this.openingHoursBranchTextView.setText(fixedOpeningString + " - " + fixedClosingString);
 
         if (pub.getBackground() != null) {
-            Drawable d = new BitmapDrawable(getResources(), pub.getBackground());
-            main.setBackgroundDrawable(d);
+            pub.getBackground().getDataInBackground(new GetDataCallback() {
+                @Override
+                public void done(byte[] data, ParseException e) {
+                    if (data != null){
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        Drawable d = new BitmapDrawable(getResources(), bitmap);
+                        main.setBackgroundDrawable(d);
+                    }
+                }
+            });
         }
 
         updateQueueIndicator(pub.getQueueTime());

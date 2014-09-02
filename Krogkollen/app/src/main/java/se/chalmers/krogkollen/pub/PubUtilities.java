@@ -1,6 +1,7 @@
 package se.chalmers.krogkollen.pub;
 
 import android.content.res.Resources;
+import android.os.AsyncTask;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class PubUtilities {
 	 * @throws NoBackendAccessException
 	 */
 	public synchronized void refreshPubList() throws NoBackendAccessException, BackendNotInitializedException {
-		loadPubList();
+        loadPubList();
 	}
 
 	/**

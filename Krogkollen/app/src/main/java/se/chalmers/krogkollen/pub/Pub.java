@@ -45,7 +45,7 @@ public class Pub implements IPub {
 	private final String	ID;
 	private long			queueTimeLastUpdatedTimestamp;
     private String          branch;
-    private Bitmap          backgroundImage;
+    private ParseFile       backgroundImage;
 
 	/**
 	 * Create a new Pub object with default values
@@ -73,7 +73,7 @@ public class Pub implements IPub {
 		int queueTime,
 		long queueTimeLastUpdatedTimestamp,
         Date lastUpdated,
-        Bitmap backgroundImage,
+        ParseFile backgroundImage,
         String branch,
 		String ID)
 	{
@@ -137,7 +137,7 @@ public class Pub implements IPub {
     }
 
     @Override
-    public Bitmap getBackground() {
+    public ParseFile getBackground() {
         return this.backgroundImage;
     }
 

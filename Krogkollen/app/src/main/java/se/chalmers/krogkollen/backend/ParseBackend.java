@@ -197,21 +197,11 @@ public class ParseBackend implements IBackend {
         System.out.println("QUEUE: " + queueTime);
 
         ParseFile imageFile = (ParseFile) object.get("poster");
-        Bitmap bitmap = null;
-        byte[] data = new byte[0];
-        try {
-            data = imageFile.getData();
-        } catch (Exception e) {
-            System.out.println("ERROR DOWNLOADING IMAGE FILE");
-        }
-        if (data != null){
-            bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        }
 
 		return new Pub(object.getString("name"), object.getString("description"),
 				object.getDouble("latitude"), object.getDouble("longitude"),opening, closing,
                 queueTime, queueTimeLastUpdatedTimestamp, lastUpdated,
-                bitmap, object.getString("arrangedBy"), object.getObjectId());
+                imageFile, object.getString("arrangedBy"), object.getObjectId());
 	}
 
     public static IVendor convertParseObjectToVendor(ParseObject object){
