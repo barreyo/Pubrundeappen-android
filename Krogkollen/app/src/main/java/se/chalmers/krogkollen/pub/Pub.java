@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseFile;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 /*
  * This file is part of Krogkollen.
@@ -108,7 +109,7 @@ public class Pub implements IPub {
 
 	@Override
 	public int getQueueTime() {
-		return this.queueTime;
+		return isOpen() ? this.queueTime : 0;
 	}
 	@Override
 	public void setQueueTime(int queueTime) {
@@ -149,6 +150,40 @@ public class Pub implements IPub {
     @Override
     public String getBranch() {
         return branch;
+    }
+
+    @Override
+    public boolean isOpen() {
+
+        Date fixedOpening = convertTimeZone(this.getOpeningTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
+        Date fixedClosing = convertTimeZone(this.getClosingTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
+
+        Time currentTime = new Time();
+        currentTime.setToNow();
+
+        Date currentTimeDate = new Date(currentTime.year - 1900, currentTime.month, currentTime.monthDay, currentTime.hour, currentTime.minute, currentTime.second);
+
+        return currentTimeDate.after(fixedOpening) && currentTimeDate.before(fixedClosing);
+    }
+
+    private java.util.Date convertTimeZone(java.util.Date date, TimeZone fromTZ , TimeZone toTZ)
+    {
+        long fromTZDst = 0;
+        if(fromTZ.inDaylightTime(date))
+        {
+            fromTZDst = fromTZ.getDSTSavings();
+        }
+
+        long fromTZOffset = fromTZ.getRawOffset() + fromTZDst;
+
+        long toTZDst = 0;
+        if(toTZ.inDaylightTime(date))
+        {
+            toTZDst = toTZ.getDSTSavings();
+        }
+        long toTZOffset = toTZ.getRawOffset() + toTZDst;
+
+        return new java.util.Date(date.getTime() + (toTZOffset - fromTZOffset));
     }
 
     @Override

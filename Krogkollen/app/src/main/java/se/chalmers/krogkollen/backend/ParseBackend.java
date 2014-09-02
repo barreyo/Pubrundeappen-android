@@ -194,8 +194,6 @@ public class ParseBackend implements IBackend {
 			queueTime = 0;
 		}
 
-        System.out.println("QUEUE: " + queueTime);
-
         ParseFile imageFile = (ParseFile) object.get("poster");
 
 		return new Pub(object.getString("name"), object.getString("description"),
@@ -238,11 +236,6 @@ public class ParseBackend implements IBackend {
 	// checks if the queue time was recently updated
 	private static boolean queueTimeIsRecentlyUpdated(long queueTimeLastUpdatedTimestamp) {
 		long epochTime = System.currentTimeMillis() / 1000;
-
-        System.out.println("EPOCHTIME: " + epochTime);
-        System.out.println("QT: " + queueTimeLastUpdatedTimestamp);
-
-        System.out.println("DIFF: " + (epochTime - queueTimeLastUpdatedTimestamp));
 
         return (epochTime - queueTimeLastUpdatedTimestamp) < 3200;
 	}

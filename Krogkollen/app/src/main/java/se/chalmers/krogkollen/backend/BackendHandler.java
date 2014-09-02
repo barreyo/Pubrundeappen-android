@@ -95,7 +95,7 @@ public class BackendHandler {
 	 */
 	public int getQueueTime(IPub pub) throws NoBackendAccessException, NotFoundInBackendException, BackendNotInitializedException {
 		this.checkBackendInstance();
-		return backendInstance.getQueueTime(pub);
+		return !pub.isOpen() ? 0 : backendInstance.getQueueTime(pub);
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class BackendHandler {
 	// Check if there is a backend
 	private void checkBackendInstance() throws BackendNotInitializedException {
 		if (backendInstance == null) {
-			throw new BackendNotInitializedException("Backend not initialized");
+			instance = new BackendHandler();
 		}
 	}
 }

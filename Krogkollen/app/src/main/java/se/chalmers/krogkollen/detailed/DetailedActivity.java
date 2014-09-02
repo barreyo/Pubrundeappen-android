@@ -243,7 +243,11 @@ public class DetailedActivity extends Activity implements IDetailedView {
             fixedClosingString += fixedClosing.getMinutes();
         }
 
-        this.openingHoursBranchTextView.setText(fixedOpeningString + " - " + fixedClosingString);
+        if (!pub.isOpen()) {
+            this.openingHoursBranchTextView.setText("Stängt");
+        } else {
+            this.openingHoursBranchTextView.setText(fixedOpeningString + " - " + fixedClosingString);
+        }
 
         if (pub.getBackground() != null) {
             pub.getBackground().getDataInBackground(new GetDataCallback() {

@@ -89,6 +89,8 @@ public interface IPub {
 
     public String getBranch();
 
+    public boolean isOpen();
+
 	/**
 	 * Updates the timestamp for when the queue time was last updated
 	 * 
