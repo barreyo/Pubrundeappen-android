@@ -239,9 +239,12 @@ public class ParseBackend implements IBackend {
 	private static boolean queueTimeIsRecentlyUpdated(long queueTimeLastUpdatedTimestamp) {
 		long epochTime = System.currentTimeMillis() / 1000;
 
-        System.out.println(epochTime - queueTimeLastUpdatedTimestamp);
+        System.out.println("EPOCHTIME: " + epochTime);
+        System.out.println("QT: " + queueTimeLastUpdatedTimestamp);
 
-        return (epochTime - queueTimeLastUpdatedTimestamp) > 3200;
+        System.out.println("DIFF: " + (epochTime - queueTimeLastUpdatedTimestamp));
+
+        return (epochTime - queueTimeLastUpdatedTimestamp) < 3200;
 	}
 
     private static List<ParseObject> getAllPubCrawls() throws NoBackendAccessException{
