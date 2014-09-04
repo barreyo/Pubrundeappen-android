@@ -13,7 +13,7 @@ import java.util.List;
 import se.chalmers.krogkollen.R;
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.PubUtilities;
-import se.chalmers.krogkollen.sort.SortBySearchRelevance;
+
 /*
  * This file is part of Krogkollen.
  *
@@ -53,8 +53,6 @@ public class SearchContentProvider extends ContentProvider {
 		List<IPub> allPubs = PubUtilities.getInstance().getPubList();
 		List<IPub> matchingPubs = SearchActivity.getMatchingPubs(query, allPubs);
 
-		matchingPubs = new SortBySearchRelevance(query).sortAlgorithm(matchingPubs);
-
 		cursor = new MatrixCursor(columns);
 
 		// For every matching pub, add a corresponding row to the cursor.
@@ -76,7 +74,7 @@ public class SearchContentProvider extends ContentProvider {
 					color = R.drawable.detailed_queue_gray;
 					break;
 			}
-			Object[] pubRow = { pub.getName(), pub.getTodaysOpeningHours().toString(), (pub.getID()), color, i };
+			Object[] pubRow = { pub.getName(), pub.getBranch() != null ? pub.getBranch() : "", (pub.getID()), color, i };
 			cursor.addRow(pubRow);
 		}
 		return cursor;

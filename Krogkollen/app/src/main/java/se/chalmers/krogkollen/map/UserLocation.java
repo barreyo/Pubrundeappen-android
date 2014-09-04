@@ -1,5 +1,6 @@
 package se.chalmers.krogkollen.map;
 
+import android.app.Application;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -35,8 +36,6 @@ import se.chalmers.krogkollen.utils.IObserver;
  */
 public class UserLocation implements LocationListener, IObservable {
 
-	private static UserLocation	instance			= null;
-
 	private List<IObserver>		observers			= new ArrayList<IObserver>();
 
 	private Location			currentLocation		= null;
@@ -55,7 +54,7 @@ public class UserLocation implements LocationListener, IObservable {
 	 * 
 	 * @param locationManager location manager from an activity.
 	 */
-	private UserLocation(LocationManager locationManager) {
+	public UserLocation(LocationManager locationManager) {
 		this.locationManager = locationManager;
 
 		Location netLocation = this.locationManager.getLastKnownLocation(this.netLocationProvider);
@@ -73,29 +72,6 @@ public class UserLocation implements LocationListener, IObservable {
 		} else if (netLocation != null) {
 			this.currentLocation = netLocation;
 		}
-	}
-
-	/**
-	 * Initiates a new UserLocation object with given LocationManager.
-	 * 
-	 * @param locationManager LocationManager from an activity
-	 */
-	public static void init(LocationManager locationManager) {
-		if (instance == null) {
-			instance = new UserLocation(locationManager);
-		}
-	}
-
-	/**
-	 * Returns an instance of this class if it's been initialized.
-	 * 
-	 * @return an instance of UserLocation
-	 */
-	public static UserLocation getInstance() {
-		if (instance == null) {
-			throw new IllegalStateException("The user location hasn't been initialized!");
-		}
-		return instance;
 	}
 
 	/**

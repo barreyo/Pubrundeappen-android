@@ -1,21 +1,32 @@
 package se.chalmers.krogkollen.backend;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.text.format.Time;
+import android.util.Log;
 
+import com.parse.GetDataCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import se.chalmers.krogkollen.pub.IPub;
 import se.chalmers.krogkollen.pub.OpeningHours;
 import se.chalmers.krogkollen.pub.Pub;
+import se.chalmers.krogkollen.pub.PubCrawl;
 import se.chalmers.krogkollen.utils.StringConverter;
+import se.chalmers.krogkollen.vendor.IVendor;
+import se.chalmers.krogkollen.vendor.Vendor;
 /*
  * This file is part of Krogkollen.
  *
@@ -72,7 +83,6 @@ public class ParseBackend implements IBackend {
 		// Declares a List to be able to handle the query
 		List<ParseObject> tempList;
 		try {
-
 			// Done to simplify the handling of the query
 			// Makes it possible to handle as a java.util.List
 			tempList = query.find();
@@ -85,12 +95,34 @@ public class ParseBackend implements IBackend {
 		return tempPubList;
 	}
 
-	@Override
+    @Override
+    public List<IVendor> getAllVendors() throws NoBackendAccessException {
+        List<IVendor> tempVendorList = new ArrayList<IVendor>();
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Vendor");
+
+        List<ParseObject> tempList;
+        try {
+            tempList = query.find();
+            for (ParseObject object : tempList) {
+                tempVendorList.add(convertParseObjectToVendor(object));
+            }
+        }
+            catch(com.parse.ParseException e1){
+                throw new NoBackendAccessException(e1.getMessage());
+            }
+        return tempVendorList;
+    }
+
+    @Override
 	public int getQueueTime(IPub pub) throws NoBackendAccessException, NotFoundInBackendException {
 		ParseObject object = new ParseObject("Pub");
-
+        long queueTimeLastUpdatedTimestamp;
+        int queueTime;
 		try {
 			object = ParseQuery.getQuery("Pub").get(pub.getID());
+            queueTimeLastUpdatedTimestamp = object.getLong("queueTimeLastUpdated");
+            queueTime = object.getInt("queueTime");
 		} catch (ParseException e) {
 			if (e.getCode() == ParseException.INVALID_KEY_NAME
 					|| e.getCode() == ParseException.OBJECT_NOT_FOUND) {
@@ -99,7 +131,7 @@ public class ParseBackend implements IBackend {
 				throw new NoBackendAccessException(e.getMessage());
 			}
 		}
-		return object.getInt("queueTime");
+		return (!queueTimeIsRecentlyUpdated(queueTimeLastUpdatedTimestamp)) ? 0 : queueTime;
 	}
 
 	@Override
@@ -120,42 +152,6 @@ public class ParseBackend implements IBackend {
 	}
 
 	@Override
-	public int getPositiveRating(IPub pub) throws NotFoundInBackendException,
-			NoBackendAccessException {
-		ParseObject object = new ParseObject("Pub");
-
-		try {
-			object = ParseQuery.getQuery("Pub").get(pub.getID());
-		} catch (ParseException e) {
-			if (e.getCode() == ParseException.INVALID_KEY_NAME
-					|| e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-				throw new NotFoundInBackendException(e.getMessage());
-			} else {
-				throw new NoBackendAccessException(e.getMessage());
-			}
-		}
-		return object.getInt("posRate");
-	}
-
-	@Override
-	public int getNegativeRating(IPub pub) throws NotFoundInBackendException,
-			NoBackendAccessException {
-		ParseObject object = new ParseObject("Pub");
-
-		try {
-			object = ParseQuery.getQuery("Pub").get(pub.getID());
-		} catch (ParseException e) {
-			if (e.getCode() == ParseException.INVALID_KEY_NAME
-					|| e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-				throw new NotFoundInBackendException(e.getMessage());
-			} else {
-				throw new NoBackendAccessException(e.getMessage());
-			}
-		}
-		return object.getInt("negRate");
-	}
-
-	@Override
 	public long getLatestUpdatedTimestamp(IPub pub) throws NoBackendAccessException,
 			NotFoundInBackendException {
 		ParseObject object = new ParseObject("Pub");
@@ -168,159 +164,48 @@ public class ParseBackend implements IBackend {
 		return object.getLong("queueTimeLastUpdated");
 	}
 
-	/**
+    @Override
+    public Date getLastUpdated(IPub pub) throws NoBackendAccessException, NotFoundInBackendException {
+        ParseObject object = new ParseObject("Pub");
+
+        try {
+            object = ParseQuery.getQuery("Pub").get(pub.getID());
+        } catch (ParseException e) {
+            throw new NotFoundInBackendException(e.getMessage());
+        }
+        return object.getUpdatedAt();
+    }
+
+    /**
 	 * A method for converting a ParseObject to an IPub
 	 * 
 	 * @param object the ParseObject
 	 * @return the IPub representation of the ParseObject
 	 */
 	public static IPub convertParseObjectToPub(ParseObject object) {
-		int hoursInFourDigits = 0;
-
-		boolean pubClosed = false;
-
-		// today == 1 if Sunday, 2 if Monday ... 7 if Saturday
-		int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-
-		int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-
-		if (hour < 6) {
-			--today;
-		}
-		if (today < 1) {
-			today = today + 7;
-		}
-
-		switch (today) {
-			case Calendar.MONDAY:
-				try {
-					hoursInFourDigits = StringConverter.convertStringToFragmentedInt(object.getString("openingHours"), 1);
-				} catch (IllegalArgumentException e) {
-					pubClosed = true;
-				}
-				break;
-
-			case Calendar.TUESDAY:
-				try {
-					hoursInFourDigits = StringConverter.convertStringToFragmentedInt(object.getString("openingHours"), 2);
-				} catch (IllegalArgumentException e) {
-					pubClosed = true;
-				}
-				break;
-
-			case Calendar.WEDNESDAY:
-				try {
-					hoursInFourDigits = StringConverter.convertStringToFragmentedInt(object.getString("openingHours"), 3);
-				} catch (IllegalArgumentException e) {
-					pubClosed = true;
-				}
-				break;
-
-			case Calendar.THURSDAY:
-				try {
-					hoursInFourDigits = StringConverter.convertStringToFragmentedInt(object.getString("openingHours"), 4);
-				} catch (IllegalArgumentException e) {
-					pubClosed = true;
-				}
-				break;
-
-			case Calendar.FRIDAY:
-				try {
-					hoursInFourDigits = StringConverter.convertStringToFragmentedInt(object.getString("openingHours"), 5);
-				} catch (IllegalArgumentException e) {
-					pubClosed = true;
-				}
-				break;
-
-			case Calendar.SATURDAY:
-				try {
-					hoursInFourDigits = StringConverter.convertStringToFragmentedInt(object.getString("openingHours"), 6);
-				} catch (IllegalArgumentException e) {
-					pubClosed = true;
-				}
-				break;
-
-			case Calendar.SUNDAY:
-				try {
-					hoursInFourDigits = StringConverter.convertStringToFragmentedInt(object.getString("openingHours"), 7);
-				} catch (IllegalArgumentException e) {
-					pubClosed = true;
-				}
-				break;
-		}
-
-		OpeningHours openingHoursToday;
-
-		if (pubClosed) {
-			openingHoursToday = new OpeningHours();
-		} else {
-			openingHoursToday = new OpeningHours(hoursInFourDigits / 100, hoursInFourDigits % 100);
-		}
 
 		long queueTimeLastUpdatedTimestamp = object.getLong("queueTimeLastUpdated");
 		int queueTime = object.getInt("queueTime");
+        Date opening = object.getDate("opens");
+        Date closing = object.getDate("closes");
+        Date lastUpdated = object.getUpdatedAt();
 
 		if (!queueTimeIsRecentlyUpdated(queueTimeLastUpdatedTimestamp)) {
 			queueTime = 0;
 		}
 
+        ParseFile imageFile = (ParseFile) object.get("poster");
+
 		return new Pub(object.getString("name"), object.getString("description"),
-				object.getDouble("latitude"), object.getDouble("longitude"),
-				object.getInt("ageRestriction"), object.getInt("entranceFee"),
-				openingHoursToday, object.getInt("posRate"),
-				object.getInt("negRate"), queueTime,
-				queueTimeLastUpdatedTimestamp, object.getObjectId());
+				object.getDouble("latitude"), object.getDouble("longitude"),opening, closing,
+                queueTime, queueTimeLastUpdatedTimestamp, lastUpdated,
+                imageFile, object.getString("arrangedBy"), object.getObjectId());
 	}
 
-	@Override
-	public void addRatingVote(IPub pub, int rating) throws NoBackendAccessException,
-			NotFoundInBackendException {
-
-		// Create a pointer to an object of class Pub
-		ParseObject tempPub = ParseObject.createWithoutData("Pub", pub.getID());
-
-		if (rating > 0) {
-			tempPub.increment("posRate");
-		} else {
-			tempPub.increment("negRate");
-		}
-
-		// Save
-		tempPub.saveInBackground(new SaveCallback() {
-			public void done(ParseException e) {
-				if (e == null) {
-					// object saved successfully
-				} else {
-					// TODO throw something from here, why is it not possible?
-				}
-			}
-		});
-	}
-
-	@Override
-	public void removeRatingVote(IPub pub, int rating) throws NoBackendAccessException,
-			NotFoundInBackendException {
-
-		// Create a pointer to an object of class Pub
-		ParseObject tempPub = ParseObject.createWithoutData("Pub", pub.getID());
-
-		if (rating > 0) {
-			tempPub.increment("posRate", -1);
-		} else {
-			tempPub.increment("negRate", -1);
-		}
-
-		// Save
-		tempPub.saveInBackground(new SaveCallback() {
-			public void done(ParseException e) {
-				if (e == null) {
-					// object in backend updated successfully
-				} else {
-					// TODO throw something, how?
-				}
-			}
-		});
-	}
+    public static IVendor convertParseObjectToVendor(ParseObject object){
+        return new Vendor(object.getString("name"), object.getDouble("latitude"),
+                object.getDouble("longitude"));
+    }
 
 	@Override
 	public void updatePubLocally(IPub pub) throws NoBackendAccessException,
@@ -346,19 +231,63 @@ public class ParseBackend implements IBackend {
 		}
 
 		pub.setQueueTimeLastUpdatedTimestamp(lastUpdate);
-		pub.setPositiveRating(object.getInt("posRate"));
-		pub.setNegativeRating(object.getInt("negRate"));
 	}
 
 	// checks if the queue time was recently updated
 	private static boolean queueTimeIsRecentlyUpdated(long queueTimeLastUpdatedTimestamp) {
 		long epochTime = System.currentTimeMillis() / 1000;
 
-		// if the queue time was updated more than 60 minutes ago, it wasn't updated recently
-		if ((epochTime - queueTimeLastUpdatedTimestamp) > 3200) {
-			return false;
-		} else {
-			return true;
-		}
+        return (epochTime - queueTimeLastUpdatedTimestamp) < 3200;
 	}
+
+    private static List<ParseObject> getAllPubCrawls() throws NoBackendAccessException{
+        List<Date> pubCrawls = new ArrayList<Date>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("PubCrawl");
+        List<ParseObject> parseObjects;
+        try {
+            parseObjects = query.find();
+        }
+        catch(com.parse.ParseException e1){
+            throw new NoBackendAccessException(e1.getMessage());
+        }
+        return parseObjects;
+    }
+
+    public static PubCrawl getNextPubcrawl() throws NoBackendAccessException{
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("PubCrawl");
+        Calendar presentDate = Calendar.getInstance();
+        Date date = presentDate.getTime();
+        query.whereGreaterThanOrEqualTo("date", date);
+        query.orderByAscending("date");
+        ParseObject object = null;
+        try {
+            object = query.getFirst();
+        } catch (ParseException e) {
+            throw new NoBackendAccessException(e.getMessage());
+        }
+        PubCrawl nextPubCrawl = new PubCrawl(object.getString("name"), object.getDate("date"),
+                object.getString("textForTextView"));
+        return nextPubCrawl;
+    }
+
+    public static boolean isPubCrawlActive() throws NoBackendAccessException{
+        Calendar presentDate = Calendar.getInstance();
+        TimeZone localTimeZone = presentDate.getTimeZone();
+        Date pubCrawlDate;
+        List<ParseObject> pubCrawls = getAllPubCrawls();
+        for(ParseObject pubCrawl : pubCrawls) {
+            pubCrawlDate = pubCrawl.getDate("date");
+            if ((pubCrawlDate.getYear() + 1900 == presentDate.get(Calendar.YEAR) &&
+                    pubCrawlDate.getMonth() == presentDate.get(Calendar.MONTH) &&
+                    pubCrawlDate.getDay() == presentDate.get(Calendar.DAY_OF_WEEK) - 1 &&
+                    presentDate.get(Calendar.HOUR_OF_DAY) >= 15) ||
+                    (pubCrawlDate.getYear() + 1900 == presentDate.get(Calendar.YEAR) &&
+                    pubCrawlDate.getMonth() == presentDate.get(Calendar.MONTH) &&
+                    pubCrawlDate.getDay()+1 == presentDate.get(Calendar.DAY_OF_WEEK) - 1 &&
+                    presentDate.get(Calendar.HOUR_OF_DAY) < 4) ) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

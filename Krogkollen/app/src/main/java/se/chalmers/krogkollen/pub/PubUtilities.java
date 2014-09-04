@@ -1,6 +1,7 @@
 package se.chalmers.krogkollen.pub;
 
 import android.content.res.Resources;
+import android.os.AsyncTask;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +29,6 @@ import se.chalmers.krogkollen.backend.NoBackendAccessException;
  */
 
 /**
- * 
  * A singleton holding a list of all the pubs, and is used to load data from the server.
  * 
  * @author Albin Garpetun
@@ -60,7 +60,7 @@ public class PubUtilities {
 	 * @throws BackendNotInitializedException
 	 * @throws NoBackendAccessException
 	 */
-	public void loadPubList() throws NoBackendAccessException, BackendNotInitializedException {
+	public synchronized void loadPubList() throws NoBackendAccessException, BackendNotInitializedException {
 		pubList = BackendHandler.getInstance().getAllPubs();
 	}
 
@@ -69,7 +69,7 @@ public class PubUtilities {
 	 * 
 	 * @return The list of all pubs.
 	 */
-	public List<IPub> getPubList() {
+	public synchronized List<IPub> getPubList() {
 		return pubList;
 	}
 
@@ -79,9 +79,8 @@ public class PubUtilities {
 	 * @throws BackendNotInitializedException
 	 * @throws NoBackendAccessException
 	 */
-	public void refreshPubList() throws NoBackendAccessException, BackendNotInitializedException {
-		pubList.clear();
-		loadPubList();
+	public synchronized void refreshPubList() throws NoBackendAccessException, BackendNotInitializedException {
+        loadPubList();
 	}
 
 	/**

@@ -3,12 +3,20 @@ package se.chalmers.krogkollen;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Interpolator;
+import android.graphics.PorterDuff;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import se.chalmers.krogkollen.backend.BackendHandler;
@@ -18,7 +26,9 @@ import se.chalmers.krogkollen.backend.ParseBackend;
 import se.chalmers.krogkollen.map.MapActivity;
 import se.chalmers.krogkollen.map.UserLocation;
 import se.chalmers.krogkollen.pub.PubUtilities;
+import se.chalmers.krogkollen.utils.Constants;
 import se.chalmers.krogkollen.utils.Preferences;
+import se.chalmers.krogkollen.vendor.VendorUtilities;
 
 /*
  * This file is part of Krogkollen.
@@ -52,6 +62,17 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
+
+        int API_LEVEL =  android.os.Build.VERSION.SDK_INT;
+
+        if (API_LEVEL >= 19)
+        {
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION );
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.loading_spinner);
+        progressBar.getIndeterminateDrawable().setColorFilter(Color.DKGRAY, PorterDuff.Mode.MULTIPLY);
 
 		if (isNetworkAvailable()) {
 			new InitResourcesTask().execute();
@@ -94,15 +115,12 @@ public class MainActivity extends Activity {
 
 			try {
 				PubUtilities.getInstance().loadPubList();
+                VendorUtilities.getInstance().loadVendorList();
 			} catch (NoBackendAccessException e) {
 				Toast.makeText(MainActivity.this, R.string.error_no_backend_access, Toast.LENGTH_LONG).show();
 			} catch (BackendNotInitializedException e) {
 				Toast.makeText(MainActivity.this, R.string.error_backend_not_initialized, Toast.LENGTH_LONG).show();
 			}
-
-			// initiate the user location and start the map activity.
-			UserLocation.init((LocationManager) MainActivity.this
-                    .getSystemService(Context.LOCATION_SERVICE));
 
 			return null; // No data to send to the post thread work method.
 		}
@@ -111,6 +129,7 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Void result) {
 			// Start the main app when all initialization is finished.
 			Intent intent = new Intent(MainActivity.this, MapActivity.class);
+            intent.putExtra(Constants.ACTIVITY_FROM, Constants.MAIN_ACTIVITY_NAME);
 			startActivity(intent);
 		}
 	}

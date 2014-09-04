@@ -5,15 +5,17 @@
         android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:descendantFocusability="blocksDescendants">
 
     <ImageView android:id="@+id/listview_image"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:gravity="center_vertical"
-               android:layout_alignParentTop="true"
-               android:layout_alignParentBottom="true"
+               android:layout_marginEnd="15dp"
                android:layout_marginRight="15dp"
                android:layout_marginTop="5dp"
                android:layout_marginBottom="5dp"/>
@@ -32,34 +34,18 @@
                       android:layout_width="match_parent"
                       android:layout_height="match_parent"
                       android:layout_weight="1"
-                      android:textSize="20dp"
+                      android:textSize="20sp"
                       android:textColor="#333333"
                       android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <TextView
-                     android:id="@+id/listview_distance"
+                     android:id="@+id/listview_subtext"
                      android:layout_width="match_parent"
                      android:layout_height="match_parent"
                      android:layout_weight="1"
-                     android:layout_alignParentTop="true"
-                     android:textSize="16dp"
+                     android:textSize="16sp"
                      android:textColor="#777777"
                      android:text="3 km"/>
 
-
-
-        </LinearLayout>
-        <LinearLayout
-
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="right">
-
-            <ImageButton
-                android:id="@+id/favorite_star_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="15dp"/>
         </LinearLayout>
 </LinearLayout>

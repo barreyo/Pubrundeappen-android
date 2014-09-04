@@ -1,6 +1,13 @@
 package se.chalmers.krogkollen.pub;
 
+import android.graphics.Bitmap;
+import android.text.format.Time;
+
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseFile;
+
+import java.util.Date;
+import java.util.TimeZone;
 
 /*
  * This file is part of Krogkollen.
@@ -32,22 +39,20 @@ public class Pub implements IPub {
 
 	private String			name;
 	private String			description;
-	private OpeningHours	openingHoursToday;
 	private double			latitude;
 	private double			longitude;
-	private int				ageRestriction;
 	private int				queueTime;
-	private int				entranceFee;
-	private int				positiveRating;
-	private int				negativeRating;
+    private Date            openTime, closeTime, lastUpdated;
 	private final String	ID;
 	private long			queueTimeLastUpdatedTimestamp;
+    private String          branch;
+    private ParseFile       backgroundImage;
 
 	/**
 	 * Create a new Pub object with default values
 	 */
 	public Pub() {
-		this("Name", "Description", 51, 11, 18, 100, new OpeningHours(20, 03), 10, 3, 1, 0, "ID");
+		this("Name", "Description", 51, 11, new Date(), new Date(), 3, 1, new Date(), null, "Informationsteknik", "ID");
 	}
 
 	/**
@@ -57,11 +62,6 @@ public class Pub implements IPub {
 	 * @param description the description
 	 * @param latitude the latitude position
 	 * @param longitude the longitude position
-	 * @param ageRestriction the age restriction
-	 * @param entranceFee the entrance fee
-	 * @param openingHoursToday todays opening hours
-	 * @param positiveRating positive rating of the pub
-	 * @param negativeRating negative rating of the pub
 	 * @param queueTime the current queue time of the pub
 	 * @param ID the ID of the pub
 	 */
@@ -69,32 +69,27 @@ public class Pub implements IPub {
 		String description,
 		double latitude,
 		double longitude,
-		int ageRestriction,
-		int entranceFee,
-		OpeningHours openingHoursToday,
-		int positiveRating,
-		int negativeRating,
+		Date openTime,
+        Date closeTime,
 		int queueTime,
 		long queueTimeLastUpdatedTimestamp,
+        Date lastUpdated,
+        ParseFile backgroundImage,
+        String branch,
 		String ID)
 	{
 		this.name = name;
 		this.description = description;
 		this.latitude = latitude;
 		this.longitude = longitude;
-		this.ageRestriction = ageRestriction;
-		this.entranceFee = entranceFee;
-		this.openingHoursToday = openingHoursToday;
-		this.positiveRating = positiveRating;
-		this.negativeRating = negativeRating;
+        this.openTime = openTime;
+        this.closeTime = closeTime;
 		this.queueTime = queueTime;
 		this.queueTimeLastUpdatedTimestamp = queueTimeLastUpdatedTimestamp;
+        this.backgroundImage = backgroundImage;
+        this.lastUpdated = lastUpdated;
+        this.branch = branch;
 		this.ID = ID;
-	}
-
-	@Override
-	public OpeningHours getTodaysOpeningHours() {
-		return this.openingHoursToday;
 	}
 
 	@Override
@@ -113,20 +108,9 @@ public class Pub implements IPub {
 	}
 
 	@Override
-	public int getAgeRestriction() {
-		return this.ageRestriction;
-	}
-
-	@Override
 	public int getQueueTime() {
-		return this.queueTime;
+		return isOpen() ? this.queueTime : 0;
 	}
-
-	@Override
-	public int getEntranceFee() {
-		return this.entranceFee;
-	}
-
 	@Override
 	public void setQueueTime(int queueTime) {
 		// No negative time allowed
@@ -136,7 +120,6 @@ public class Pub implements IPub {
 		else {
 			this.queueTime = queueTime;
 		}
-
 	}
 
 	@Override
@@ -144,27 +127,66 @@ public class Pub implements IPub {
 		return this.ID;
 	}
 
-	@Override
-	public int getPositiveRating() {
-		return this.positiveRating;
-	}
+    @Override
+    public Date getOpeningTime() {
+        return this.openTime;
+    }
 
-	@Override
-	public void setPositiveRating(int rating) {
-		this.positiveRating = rating;
-	}
+    @Override
+    public Date getClosingTime() {
+        return this.closeTime;
+    }
 
-	@Override
-	public int getNegativeRating() {
-		return this.negativeRating;
-	}
+    @Override
+    public ParseFile getBackground() {
+        return this.backgroundImage;
+    }
 
-	@Override
-	public void setNegativeRating(int rating) {
-		this.negativeRating = rating;
-	}
+    @Override
+    public Date getLastUpdated() {
+        return this.lastUpdated;
+    }
 
-	@Override
+    @Override
+    public String getBranch() {
+        return branch;
+    }
+
+    @Override
+    public boolean isOpen() {
+
+        Date fixedOpening = convertTimeZone(this.getOpeningTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
+        Date fixedClosing = convertTimeZone(this.getClosingTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
+
+        Time currentTime = new Time();
+        currentTime.setToNow();
+
+        Date currentTimeDate = new Date(currentTime.year - 1900, currentTime.month, currentTime.monthDay, currentTime.hour, currentTime.minute, currentTime.second);
+
+        return currentTimeDate.after(fixedOpening) && currentTimeDate.before(fixedClosing);
+    }
+
+    private java.util.Date convertTimeZone(java.util.Date date, TimeZone fromTZ , TimeZone toTZ)
+    {
+        long fromTZDst = 0;
+        if(fromTZ.inDaylightTime(date))
+        {
+            fromTZDst = fromTZ.getDSTSavings();
+        }
+
+        long fromTZOffset = fromTZ.getRawOffset() + fromTZDst;
+
+        long toTZDst = 0;
+        if(toTZ.inDaylightTime(date))
+        {
+            toTZDst = toTZ.getDSTSavings();
+        }
+        long toTZOffset = toTZ.getRawOffset() + toTZDst;
+
+        return new java.util.Date(date.getTime() + (toTZOffset - fromTZOffset));
+    }
+
+    @Override
 	public double getLatitude() {
 		return this.latitude;
 	}

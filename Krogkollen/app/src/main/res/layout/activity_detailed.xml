@@ -12,26 +12,39 @@ This file is part of Krogkollen.
  You should have received a copy of the GNU General Public License
  along with Krogkollen.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/scrollView1"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/frame"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:fillViewport="true">
-    <LinearLayout 
-                  android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent">
-        <include  layout="@layout/card1"
-                  android:layout_weight="6"
-                  android:layout_width="match_parent"
-                  android:layout_height="50dp"/>
-        <include  layout="@layout/card2"
-                  android:layout_weight="1.7"
-                  android:layout_width="match_parent"
-                  android:layout_height="0dp"/>
-        <include  layout="@layout/card3"
-                  android:layout_weight="5"
-                  android:layout_width="match_parent"
-                  android:layout_height="0dp"/>
-    </LinearLayout>
-</ScrollView>
+            android:fillViewport="true"
+            android:background="@android:color/holo_purple">
+
+            <ImageView
+                    android:id="@+id/overlay_gradient"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:src="@drawable/black_gradient"/>
+
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/detailed_main_content">
+
+                    <include  layout="@layout/card1"
+                        android:id="@+id/sub_view"
+                        android:layout_weight="6"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"/>
+            </LinearLayout>
+
+
+    <se.chalmers.krogkollen.detailed.FloatingActionButton
+        android:id="@+id/fabbutton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="150dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"/>
+</FrameLayout>
