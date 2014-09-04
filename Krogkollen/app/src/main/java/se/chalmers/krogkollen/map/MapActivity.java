@@ -156,18 +156,10 @@ public class MapActivity extends Activity implements IMapView, CountdownFragment
             }
         });
 
-        FragmentManager fragmentManager = this.getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        countdownFragment = new CountdownFragment();
-        getActionBar().hide();
-        fragmentTransaction.replace(android.R.id.content, new CountdownFragment());
-        fragmentTransaction.commit();
-
         try {
             if(!ParseBackend.isPubCrawlActive()) {
                 try {
                     this.addVendorMarkers(VendorUtilities.getInstance().getVendorList());
-                    findViewById(R.id.splash).setVisibility(View.VISIBLE);
                 } catch (NoBackendAccessException e) {
                     this.showErrorMessage(this.getString(R.string.error_no_backend_access));
                 } catch (NotFoundInBackendException e) {
