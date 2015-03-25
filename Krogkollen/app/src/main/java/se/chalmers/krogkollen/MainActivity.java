@@ -107,7 +107,7 @@ public class MainActivity extends Activity {
 
 			// Tells the backend handler to initialize its server connection
 			// with a backend to Parse.com
-			BackendHandler.getInstance().setBackend(new ParseBackend(MainActivity.this, "WgLQnilANHpjM3xITq0nM0eW8dByIgDDmxJzf6se", "9ZK7yjE1NiD244ymDHb8ZpbbWNNv3RuQq7ceEvJc"));
+			BackendHandler.getInstance().setBackend(new ParseBackend(getApplicationContext(), "WgLQnilANHpjM3xITq0nM0eW8dByIgDDmxJzf6se", "9ZK7yjE1NiD244ymDHb8ZpbbWNNv3RuQq7ceEvJc"));
 
 			// If you want to use the mockup backend, comment the above line and
 			// uncomment the line below
