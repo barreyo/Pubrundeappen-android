@@ -36,8 +36,6 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
 		this.layoutResourceId = layoutResourceId;
 		this.context = context;
 		this.data = data;
-		//this.fragment = fragment;
-
 	}
 
 	@Override
@@ -67,17 +65,6 @@ public class PubListAdapter extends ArrayAdapter<IPub> {
         } else {
             holder.subText.setText("");
         }
-        /*
-		DecimalFormat numberFormat = new DecimalFormat("#0.00");
-
-		double distance = Distance.calcDistBetweenTwoLatLng(new LatLng(pub.getLatitude(), pub.getLongitude()), UserLocation.getInstance().getCurrentLatLng());
-		if(distance < 1){
-			DecimalFormat numberFormatMeters = new DecimalFormat("#0");
-			holder.distanceText.setText("" + numberFormatMeters.format(distance * 1000) + "m");
-		}
-		else{
-			holder.distanceText.setText(""+(numberFormat.format(Distance.calcDistBetweenTwoLatLng(new LatLng(pub.getLatitude(),pub.getLongitude()), UserLocation.getInstance().getCurrentLatLng())))+" km");
-		}*/
 
 		switch(pub.getQueueTime()){
 			case 1:

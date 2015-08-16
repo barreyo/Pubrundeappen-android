@@ -1,23 +1,5 @@
 package se.chalmers.krogkollen.backend;
 
-
-/*
- * This file is part of Krogkollen.
- *
- * Krogkollen is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Krogkollen is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Krogkollen.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 import java.util.List;
 
 import se.chalmers.krogkollen.pub.IPub;
@@ -26,16 +8,13 @@ import se.chalmers.krogkollen.vendor.IVendor;
 
 /**
  * A singleton class that handles the current active backend.
- * 
- * @author Oskar Karrman
  */
 public class BackendHandler {
 	private static BackendHandler	instance		= null;
 	private static IBackend			backendInstance	= null;
 
 	// Private constructor to prevent accessibility
-	private BackendHandler() {
-	}
+	private BackendHandler() {}
 
 	/**
 	 * Returns the instance for this singleton
