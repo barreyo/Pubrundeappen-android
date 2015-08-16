@@ -197,6 +197,8 @@ public class DetailedActivity extends Activity implements IDetailedView {
 
         Date fixedUpdated = convertTimeZone(pub.getLastUpdated(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
 
+
+        /*
         String fixedUpdatedString = "";
 
         if (fixedUpdated.getHours() < 10) {
@@ -212,6 +214,7 @@ public class DetailedActivity extends Activity implements IDetailedView {
         }
 
         this.lastUpdatedTextView.setText("Senast uppdaterad " + fixedUpdatedString);
+        */
 
         Date fixedOpening = convertTimeZone(pub.getOpeningTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));
         Date fixedClosing = convertTimeZone(pub.getClosingTime(), TimeZone.getDefault(), TimeZone.getTimeZone("Coordinated Universal Time"));

@@ -7,13 +7,12 @@ android {
     defaultConfig {
         applicationId "se.chalmers.krogkollen"
         minSdkVersion 14
-        targetSdkVersion 20
-        versionCode 7
-        versionName "2.0.1"
+        versionCode 9
+        versionName "2.0.3"
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
